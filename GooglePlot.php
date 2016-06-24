@@ -467,34 +467,6 @@ class GooglePlot
     // public function buildJsForDashboard()
 
 
-    public function juggleThePngForCron($where)
-    {
-        $js = "
-         <div id='$this->codename' style='border: 0px solid; width:1400px;'></div>
-         <script type='text/javascript'>
-         google.load('visualization', '1', {packages:['{$this->package}']});
-         google.setOnLoadCallback($this->codename);
-         function $this->codename() {
-             var data = new google.visualization.DataTable()
-             {$this->buildColumns()}
-             data.addRows(
-             [
-                 {$this->getDataTable()}
-             ]);
-
-             {$this->getOptions()}
-             var chart = new google.visualization.{$this->chartClass}(document.getElementById('$this->codename'));
-             google.visualization.events.addListener(chart, 'ready', function () {
-                 png = chart.getImageURI();
-                 $.post('$where', {variable: png});
-             });
-             chart.draw(data, options);
-         }
-         </script>";
-
-         return $js;
-    }
-
     public function display()
     {
         if ($this->hasResults === False) {
