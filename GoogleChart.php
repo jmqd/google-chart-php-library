@@ -1,15 +1,17 @@
 <?php
 // Jordan McQueen
 
-// TODO at this point, I'm beginning to believe that each kind of plot requires its own class.
+// TODO:
 // 
 //      - each chartClass should have its own PHP class
 //          - mkdir charts
 //          - PiChart.php, BarChart.php, etc.
 //          - each of these will extend GoogleChart.php
 //      
-//      - constructor will go:
-//          - $this
+//          - constructor will do something along these lines, akin to a driver:
+//              - construct things common to ALL types of chart (data, title, etc)
+//              - $this->class_instance = $this->kind . "Chart"
+//              - return new {$this->class_instance}($this);
 
 class GooglePlot
 {
