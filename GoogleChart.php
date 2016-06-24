@@ -2,10 +2,14 @@
 // Jordan McQueen
 
 // TODO at this point, I'm beginning to believe that each kind of plot requires its own class.
-// e.g. new GooglePlot(['kind' => 'pie']) might have to call new GooglePlotPie() or something
-// of the sort. This is a longer-term design issue, though, and is probably best left on the 
-// backburner for now -- as it is, nothing is readily observed as broken.
-//
+// 
+//      - each chartClass should have its own PHP class
+//          - mkdir charts
+//          - PiChart.php, BarChart.php, etc.
+//          - each of these will extend GoogleChart.php
+//      
+//      - constructor will go:
+//          - $this
 
 class GooglePlot
 {
