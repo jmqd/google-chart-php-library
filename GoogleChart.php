@@ -15,6 +15,9 @@
 
 class GooglePlot
 {
+
+	include('config/config.php');	
+
     private $kind;
     private $dependents;
     private $independent;
@@ -33,20 +36,7 @@ class GooglePlot
     private $linkedReport;
 
     
-    // this doesn't belong in the class file, obviously. Just for prototyping.
-    // does it make sense to have the class query the DB directly? hmm... 
-    static $releases = [
-        '2014-02-07' => 'Born of the Gods',
-        '2014-05-02' => 'Journey into Nyx',
-        '2014-07-18' => '2015 Core Set',
-        '2014-09-26' => 'Khans of Tarkir',
-        '2015-01-23' => 'Fate Reforged',
-        '2015-03-27' => 'Dragons of Tarkir',
-        '2015-07-17' => 'Magic Origins',
-        '2015-10-02' => 'Battle for Zendikar',
-        '2016-01-22' => 'Oath of the Gatewatch',
-        '2016-04-08' => 'Shadows Over Innistrad' 
-        ];
+    static $releases = $config['annotated_dates'];
     
     public function __construct($args)
     {
