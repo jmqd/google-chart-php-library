@@ -12,6 +12,8 @@
 //              - construct things common to ALL types of chart (data, title, etc)
 //              - $this->class_instance = $this->kind . "Chart"
 //              - return new {$this->class_instance}($this);
+//      - adhere to 80 width lines
+//      - build out $config options
 
 class GooglePlot
 {
@@ -35,9 +37,17 @@ class GooglePlot
     private $hasResults;
     private $linkedReport;
 
-    
+    # TODO
+    #
+    # factor static $releases OUT
+    #   - create $this->annotated_dates = $config['annotated_dates'];
+    #   - refactor so all references to $releases work. 
     static $releases = $config['annotated_dates'];
-    
+
+    # I wrote this constructor when I was much less experienced...
+    # TODO
+    #
+    # refactor this into better code. 
     public function __construct($args)
     {
         $this->title = $args['title'];
@@ -208,7 +218,11 @@ class GooglePlot
         return $this;
     }
 
-
+    #TODO:
+    #
+    # I thought this was a funny function name at the time,
+    # but now that I have this public published,
+    # change it to something better.
     private function independentlyDolledUp($value)
     {
         switch ($this->getIndependentType())
@@ -245,7 +259,10 @@ class GooglePlot
                 break;
         }
     }
-
+    
+    #TODO:
+    #
+    #clean this up.
     private function makeJsDataTable()
     {
         $data_body = "";
@@ -469,7 +486,7 @@ class GooglePlot
             echo "No data found to plot with for $this->title.";
             return Null;
         }
-        echo $this->getJavascript();
+        echo $this->getJavascript(); #do I really want this to echo? maybe return is better.
     }
 }
 
