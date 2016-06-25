@@ -9,4 +9,9 @@ $config['annotated_dates'] =
 	'2016-06-23' => 'The day I wrote this config file',
 ];
 
+$config['supported_options'] = [
+    'stacked',
+    'separate_axes',
+];
+
 ?>
