@@ -181,6 +181,30 @@ class GooglePlot
     }
 
 
+    public function with($option) {
+        $option = strtolower($option);
+
+        if (!in_array($option, $this->config->supported_options)) {
+            throw new Exception("$option is not a supported with() option.");
+        }
+        
+        if (in_array($option, $this->options)) {
+            return $this;
+        }
+
+        # everything looks good... continuing
+        $this->options[] = $option;
+        return $this;
+    }
+
+
+    # TODO:
+    # Build out the various with_() functions.
+
+    private function with_separate_axes() {
+        
+    }    
+
     public function setDependents($dependents)
     {
         $this->dependents = $dependents;
