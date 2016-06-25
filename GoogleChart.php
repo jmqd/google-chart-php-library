@@ -203,7 +203,7 @@ class GooglePlot
 
     private function with_separate_axes() {
         
-    }    
+    } 
 
     public function setDependents($dependents)
     {
@@ -247,7 +247,7 @@ class GooglePlot
     # I thought this was a funny function name at the time,
     # but now that I have this public published,
     # change it to something better.
-    private function independentlyDolledUp($value)
+    private function prepare_independent($value)
     {
         switch ($this->getIndependentType())
         {
@@ -301,7 +301,7 @@ class GooglePlot
                 $annotation_text = "null";
             }
             
-            $x = $this->independentlyDolledUp($row->{$this->independent});
+            $x = $this->prepare_independent($row->{$this->independent});
             $data_body .= "[$x";
             foreach ($this->dependents as $y)
             {
