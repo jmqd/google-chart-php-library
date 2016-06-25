@@ -42,6 +42,9 @@ class GooglePlot
     # factor static $releases OUT
     #   - create $this->annotated_dates = $config['annotated_dates'];
     #   - refactor so all references to $releases work. 
+    #
+    # Make config an object?
+    #
     static $releases = $config['annotated_dates'];
 
     # I wrote this constructor when I was much less experienced...
@@ -192,7 +195,6 @@ class GooglePlot
             return $this;
         }
 
-        # everything looks good... continuing
         $this->options[] = $option;
         return $this;
     }
@@ -201,9 +203,21 @@ class GooglePlot
     # TODO:
     # Build out the various with_() functions.
 
-    private function with_separate_axes() {
-        
+    private function with_separate_axes($mode) { 
+        switch ($mode) {
+            case 'special_options':
+
+        }
     } 
+
+
+    private function with_stacked($mode) {
+        switch ($mode) {
+            case 'special_options':
+                return "isStacked: true,\n";
+                break;
+        }
+    }
 
     public function setDependents($dependents)
     {
@@ -321,16 +335,14 @@ class GooglePlot
     }    
 
 
-    private function getSpecialOptions()
+    private function get_special_options()
     {
         $special_options = "";
-        switch ($this->kind)
-        {
-            case 'stacked':
-                $special_options .= "isStacked: true,\n";
-            default:
-                $special_options .= "pointSize: {$this->getPointSize()}";
+        foreach ($this->options as $option) {
+            $func_name = "with_$option";
+            $special_options .= $this->$func_name('special_options');
         }
+        $special_options .= "pointSize: {$this->getPointSize()}\n";
         return $special_options;
     }
 
@@ -364,13 +376,13 @@ class GooglePlot
     }
 
 
-    private function getOptions()
+    private function get_options()
     {
         $options = "var options = {
                 title: '$this->title',
                 height: 400,
                 {$this->getAxesOptions()},
-                {$this->getSpecialOptions()}
+                {$this->get_special_options()}
             };";
         return $options;
     }
@@ -488,7 +500,7 @@ class GooglePlot
                 {$this->getDataTable()}
             ]);
 
-            {$this->getOptions()}
+            {$this->get_options()}
             var chart = new google.visualization.{$this->chartClass}(document.getElementById('$this->codename'));
             {$this->buildJsExtras()}
             chart.draw(data, options);
