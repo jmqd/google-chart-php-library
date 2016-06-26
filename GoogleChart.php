@@ -44,24 +44,31 @@ class GooglePlot
     # refactor this into better code. 
     public function __construct($args)
     {
+        $this->config = new Config();
         $this->title = $args['title'];
-        $this->has_results = array_key_exists('has_results', $args) ? $args['has_results'] : True;
+        $this->has_results = $args['has_results'] ?: True;
         if ($this->has_results === True)
         {
-            $this->kind = array_key_exists('kind', $args) ? strtolower($args['kind']) : 'line';
-            $this->codename = preg_replace('/[\s0-9,\'"\)\(]+/', '', $this->title) . substr(md5(rand()), 0, 7);
+            $this->kind = $args['kind'] ?: $this->config->default_kind;
+            $this->codename = preg_replace(
+                '/[\s0-9,\'"\)\(]+/', 
+                '', 
+                $this->title) . substr(md5(rand()), 0, 7);
             $this->data = $args['data'];
             $this->data_transformer();
             $this->refresh_data_headers();
-            $this->is_controllable = array_key_exists('is_controllable', $args) ? $args['is_controllable'] : False;
-            $args['independent'] = array_key_exists('independent', $args) ? $args['independent'] : '';
+            $this->is_controllable = $args['is_controllable'] ?: False
+            $args['independent'] = $args['independent'] ?: '';
             $this->set_independent($args['independent']);
-            $this->is_including_png = array_key_exists('is_including_png', $args) ? $args['is_including_png'] : False;
-            $this->linked_report = array_key_exists('linked_report', $args) ? $args['linked_report'] : Null;
-            $this->dependents = array_key_exists('dependents', $args) ? $args['dependents'] : $this->build_dependents_guess();
+            $this->is_including_png = $args['is_including_png'] ?: False;
+            $this->linked_report = $args['linked_report'] ?: Null;
+            if (!$this->dependents = $args['dependents'])
+            {
+               $this->build_dependents_guess();
+            }
             $this->chart_class = $this->lookup_chart_class();
             $this->package = $this->lookup_package(); 
-            $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args) ? $args['is_sharing_axes'] : True;
+            $this->is_sharing_axes = $args['is_sharing_axes'] ?: True;
             $this->make_js_data_table();
         }
     }
