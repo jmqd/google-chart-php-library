@@ -50,16 +50,12 @@ class GooglePlot
         if ($this->has_results === True)
         {
             $this->kind = $args['kind'] ?: $this->config->default_kind;
-            $this->codename = preg_replace(
-                '/[\s0-9,\'"\)\(]+/', 
-                '', 
-                $this->title) . substr(md5(rand()), 0, 7);
+            $this->codename = $this->construct_codename();
             $this->data = $args['data'];
             $this->data_transformer();
             $this->refresh_data_headers();
             $this->is_controllable = $args['is_controllable'] ?: False
-            $args['independent'] = $args['independent'] ?: '';
-            $this->set_independent($args['independent']);
+            $this->set_independent($args['independent'] ?: '');
             $this->is_including_png = $args['is_including_png'] ?: False;
             $this->linked_report = $args['linked_report'] ?: Null;
             if (!$this->dependents = $args['dependents'])
@@ -73,7 +69,14 @@ class GooglePlot
         }
     }
 
+    private function construct_codename()
+    {
+        $codename = preg_replace('/[^a-zA-Z]/', '', $this->title) 
+        $codename .= substr(md5(rand()), 0, 7);
 
+        return $codename
+
+    }
     private function refresh_data_headers()
     {
         $this->data_headers = [];
