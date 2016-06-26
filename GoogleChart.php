@@ -23,29 +23,20 @@ class GooglePlot
     private $kind;
     private $dependents;
     private $independent;
-    private $dataTable;
+    private $data_table;
     private $codename;
     private $title;
     private $data;
-    private $chartClass;
+    private $chart_class;
     private $package;
-    private $isSharingAxes;
-    private $independentType;
-    private $dataHeaders;
-    private $isControllable;
-    private $isIncludingPng;
-    private $hasResults;
-    private $linkedReport;
+    private $is_sharing_axes;
+    private $independent_type;
+    private $data_headers;
+    private $is_controllable;
+    private $is_including_png;
+    private $has_results;
+    private $linked_report;
 
-    # TODO
-    #
-    # factor static $releases OUT
-    #   - create $this->annotated_dates = $config['annotated_dates'];
-    #   - refactor so all references to $releases work. 
-    #
-    # Make config an object?
-    #
-    static $releases = $config['annotated_dates'];
 
     # I wrote this constructor when I was much less experienced...
     # TODO
@@ -54,133 +45,133 @@ class GooglePlot
     public function __construct($args)
     {
         $this->title = $args['title'];
-        $this->hasResults = array_key_exists('hasResults', $args) ? $args['hasResults'] : True;
-        if ($this->hasResults === True)
+        $this->has_results = array_key_exists('has_results', $args) ? $args['has_results'] : True;
+        if ($this->has_results === True)
         {
             $this->kind = array_key_exists('kind', $args) ? strtolower($args['kind']) : 'line';
             $this->codename = preg_replace('/[\s0-9,\'"\)\(]+/', '', $this->title) . substr(md5(rand()), 0, 7);
             $this->data = $args['data'];
-            $this->dataTransformer();
-            $this->refreshDataHeaders();
-            $this->isControllable = array_key_exists('isControllable', $args) ? $args['isControllable'] : False;
+            $this->data_transformer();
+            $this->refresh_data_headers();
+            $this->is_controllable = array_key_exists('is_controllable', $args) ? $args['is_controllable'] : False;
             $args['independent'] = array_key_exists('independent', $args) ? $args['independent'] : '';
-            $this->setIndependent($args['independent']);
-            $this->isIncludingPng = array_key_exists('isIncludingPng', $args) ? $args['isIncludingPng'] : False;
-            $this->linkedReport = array_key_exists('linkedReport', $args) ? $args['linkedReport'] : Null;
-            $this->dependents = array_key_exists('dependents', $args) ? $args['dependents'] : $this->buildDependentsGuess();
-            $this->chartClass = $this->lookupChartClass();
-            $this->package = $this->lookupPackage(); 
-            $this->isSharingAxes = array_key_exists('isSharingAxes', $args) ? $args['isSharingAxes'] : True;
-            $this->makeJsDataTable();
+            $this->set_independent($args['independent']);
+            $this->is_including_png = array_key_exists('is_including_png', $args) ? $args['is_including_png'] : False;
+            $this->linked_report = array_key_exists('linked_report', $args) ? $args['linked_report'] : Null;
+            $this->dependents = array_key_exists('dependents', $args) ? $args['dependents'] : $this->build_dependents_guess();
+            $this->chart_class = $this->lookup_chart_class();
+            $this->package = $this->lookup_package(); 
+            $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args) ? $args['is_sharing_axes'] : True;
+            $this->make_js_data_table();
         }
     }
 
 
-    private function refreshDataHeaders()
+    private function refresh_data_headers()
     {
-        $this->dataHeaders = [];
+        $this->data_headers = [];
 
         foreach ($this->data[0] as $key => $value)
         {
-            $this->dataHeaders[] = $key;
+            $this->data_headers[] = $key;
         }
     }
 
 
-    public function getDataHeaders()
+    public function get_data_headers()
     {
-        $this->refreshDataHeaders();
-        return $this->dataHeaders;
+        $this->refresh_data_headers();
+        return $this->data_headers;
     }
 
 
-    public function getIndependent()
+    public function get_independent()
     {
         return $this->independent;
     }
 
 
-    public function getIsControllable()
+    public function get_is_controllable()
     {
-        return $this->isControllable;
+        return $this->is_controllable;
     }
 
 
-    public function setIsControllable($boolean)
+    public function set_is_controllable($boolean)
     {
         if (is_bool($boolean) === False) 
         {
             $type = gettype($boolean);
-            throw new Exception("setIsControllable of GooglePlot class requires boolean input. $type was given.");
+            throw new Exception("set_is_controllable of GooglePlot class requires boolean input. $type was given.");
         }
-        $this->isControllable = $boolean;
+        $this->is_controllable = $boolean;
         return $this;
     }
 
 
-    private function buildDependentsGuess()
+    private function build_dependents_guess()
     {   
-        return array_diff($this->getDataHeaders(), [$this->getIndependent()]);
+        return array_diff($this->get_data_headers(), [$this->get_independent()]);
     }
 
-
-    public function withPng()
+    // factor this into with() strategy function if possible?
+    public function with_png()
     {
-        $this->isIncludingPng = True;
+        $this->is_including_png = True;
         return $this;
     }
 
-    public function setIndependent($independent)
+    public function set_independent($independent)
     {
         switch (True)
         {
             case (is_array($independent)):
                 $this->independent = $independent['name'];
-                $this->independentType = $independent['type'];
+                $this->independent_type = $independent['type'];
                 break;
-            case (!empty($independent) && DateTime::createFromFormat('Y-m-d', $this->getData()[0]->$independent) !== FALSE):
+            case (!empty($independent) && DateTime::createFromFormat('Y-m-d', $this->get_data()[0]->$independent) !== FALSE):
                 $this->independent = $independent;
-                $this->independentType = 'date';
+                $this->independent_type = 'date';
                 break;
-            case (in_array('date', $this->getDataHeaders()) && empty($independent)):
+            case (in_array('date', $this->get_data_headers()) && empty($independent)):
                 $this->independent = 'date';
-                $this->independentType = 'date';
+                $this->independent_type = 'date';
                 break;
             default:
                 $this->independent = $independent;
-                $this->independentType = 'string';
+                $this->independent_type = 'string';
                 break;
         }
         return $this;
     } 
 
 
-    public function setKind($kind)
+    public function set_kind($kind)
     {
         $this->kind = $kind;
         return $this;
     }
 
 
-    public function setIsSharingAxes($boolean)
+    public function set_is_sharing_axes($boolean)
     {
         if (!is_bool($boolean)) 
         {
             $type = gettype($boolean);
-            throw new Exception ("setIsSharingAxes() of GooglePlot class requires type Boolean; $type was given.");
+            throw new Exception ("set_is_sharing_axes() of GooglePlot class requires type Boolean; $type was given.");
         }
-        $this->isSharingAxes = $boolean;
+        $this->is_sharing_axes = $boolean;
         return $this;
     }
 
 
-    public function getKind()
+    public function get_kind()
     {   
         return $this->kind;
     }
 
 
-    public function getData()
+    public function get_data()
     {
         return $this->data;
     }
@@ -228,51 +219,47 @@ class GooglePlot
         }
     }
 
-    public function setDependents($dependents)
+    public function set_dependents($dependents)
     {
         $this->dependents = $dependents;
         return $this;
     }
 
 
-    public function setTitle($title)
+    public function set_title($title)
     {
         $this->title = $title;
         return $this;
     }
 
 
-    public function getTitle()
+    public function get_title()
     {
         return $this->title;
     }
 
-    public function getDependents()
+    public function get_dependents()
     {
         return $this->dependents;
     }
 
 
-    public function getIndependentType()
+    public function get_independent_type()
     {
-        return $this->independentType;
+        return $this->independent_type;
     }
 
 
-    public function addDependent($dependent)
+    public function add_dependent($dependent)
     {
         $this->dependents[] = $dependent;
         return $this;
     }
 
-    #TODO:
-    #
-    # I thought this was a funny function name at the time,
-    # but now that I have this public published,
-    # change it to something better.
+
     private function prepare_independent($value)
     {
-        switch ($this->getIndependentType())
+        switch ($this->get_independent_type())
         {
             case 'date':
                 $value = new DateTime($value);
@@ -290,15 +277,15 @@ class GooglePlot
     }
 
 
-    private function getDataTable()
+    private function get_data_table()
     {
-        return $this->dataTable;
+        return $this->data_table;
     }
 
 
-    private function dataTransformer()
+    private function data_transformer()
     {
-        switch ($this->getKind())
+        switch ($this->get_kind())
         {
             case 'pie':
                 break;
@@ -310,13 +297,13 @@ class GooglePlot
     #TODO:
     #
     #clean this up.
-    private function makeJsDataTable()
+    private function make_js_data_table()
     {
         $data_body = "";
         foreach ($this->data as $row)
         {
-            if ($this->getIndependentType() == 'date' && 
-                array_key_exists($row->{$this->getIndependent()}, 
+            if ($this->get_independent_type() == 'date' && 
+                array_key_exists($row->{$this->get_independent()}, 
                                  $this->config->annotated_dates)) {
                 $annotation = "'R'";
                 $annotation_text = "'{$this->config->annotated_dates[$row->{$this->independent}]}'";
@@ -337,14 +324,14 @@ class GooglePlot
                 }
                 $data_body .= ", $value";
             }
-            if ($this->independentType == 'date') 
+            if ($this->independent_type == 'date') 
             {
                 $data_body .= ", $annotation";
                 $data_body .= ", $annotation_text";
             }
             $data_body .= "],\n\t\t\t\t";
         }
-        $this->dataTable = $data_body;
+        $this->data_table = $data_body;
     }    
 
 
@@ -356,39 +343,39 @@ class GooglePlot
             $func_name = "with_$option";
             $special_options .= $this->$func_name('special_options');
         }
-        $special_options .= "pointSize: {$this->getPointSize()}\n";
+        $special_options .= "pointSize: {$this->get_point_size()}\n";
         return $special_options;
     }
 
 
-    public function setPointSizeOptions($size=Null)
+    public function set_point_size_options($size=Null)
     {
         if ($size != Null) 
         {
-            $this->pointSize = $size;
+            $this->point_size = $size;
             return $this;
         }
 
         switch ($this->kind)
         {
             case 'scatter':
-                $this->pointSize = 1;
+                $this->point_size = 1;
                 break;
             default:
-                $this->pointSize = 0;
+                $this->point_size = 0;
                 break;
         }
         return $this;
     }
 
 
-    public function getPointSize()
+    public function get_point_size()
     {
-        if (isset($this->pointSize) === False) 
+        if (isset($this->point_size) === False) 
         {
-            $this->setPointSizeOptions();
+            $this->set_point_size_options();
         }
-        return $this->pointSize;
+        return $this->point_size;
     }
 
 
@@ -397,14 +384,14 @@ class GooglePlot
         $options = "var options = {
                 title: '$this->title',
                 height: 400,
-                {$this->getAxesOptions()},
+                {$this->get_axes_options()},
                 {$this->get_special_options()}
             };";
         return $options;
     }
     
 
-    private function lookupPackage()
+    private function lookup_package()
     {
         switch ($this->kind)
         {
@@ -418,7 +405,7 @@ class GooglePlot
     }
 
 
-    private function lookupChartClass()
+    private function lookup_chart_class()
     {
         $class_lookup = [
             'timeseries' => 'LineChart',
@@ -436,16 +423,17 @@ class GooglePlot
     }
 
 
-    private function buildColumns()
+    private function build_columns()
     {
         $columns = "";
-        $columns .= "data.addColumn('{$this->getIndependentType()}', '{$this->getIndependent()}');";
-        foreach ($this->getDependents() as $dependent)
+        $columns .= "data.addColumn('{$this->get_independent_type()}', ";
+        $columns .= "'{$this->get_independent()}');";
+        foreach ($this->get_dependents() as $dependent)
         {
             $columns .= "\n\t\t\t";
             $columns .= "data.addColumn('number', '$dependent');";
         }
-        if ($this->independentType == 'date') 
+        if ($this->independent_type == 'date') 
         {
             $columns .= " data.addColumn({type:'string', role:'annotation'});
             data.addColumn({type:'string', role:'annotationText'});";
@@ -455,18 +443,18 @@ class GooglePlot
     }
 
 
-    private function getAxesOptions()
+    private function get_axes_options()
     {
         $axes = "vAxes: {\n";
         $series = "\t\t\t\tseries: {\n";
-        if ($this->isSharingAxes === False) 
+        if ($this->is_sharing_axes === False) 
         {
             foreach ($this->dependents as $index => $y)
             {
                 $axes .= "\t\t\t\t\t$index: {title: '$y'},\n";
                 $series .= "\t\t\t\t\t$index:{ targetAxisIndex: $index},\n";
             }
-        } else if ($this->isSharingAxes === True) 
+        } else if ($this->is_sharing_axes === True) 
         {
             $axes .= "\t\t\t\t\t0: {title: ''},\n";
             foreach ($this->dependents as $index => $y)
@@ -480,15 +468,15 @@ class GooglePlot
     }
 
 
-    public function getJavascript()
+    public function get_javascript()
     {
-        switch ($this->getIsControllable())
+        switch ($this->get_is_controllable())
         {
             case True:
-                return $this->buildJsForDashboard();
+                return $this->build_js_for_dashboard();
                 break;
             case False:
-                return $this->buildJsForChart();
+                return $this->build_js_for_chart();
                 break;
         }
     }
@@ -496,7 +484,7 @@ class GooglePlot
 
     private function buildJsExtras()
     {
-        if ($this->isIncludingPng === True) 
+        if ($this->is_including_png === True) 
         {
             return "google.visualization.events.addListener(chart, 'ready', function () {
                  png = chart.getImageURI();
@@ -505,7 +493,7 @@ class GooglePlot
     }
 
 
-    private function buildJsForChart()
+    private function build_js_for_chart()
     {
         $js = "
         <div id='$this->codename' style='border: 0px solid; width:1400px;'></div>
@@ -514,15 +502,15 @@ class GooglePlot
         google.setOnLoadCallback($this->codename);
         function $this->codename() {
             var data = new google.visualization.DataTable()
-            {$this->buildColumns()}
+            {$this->build_columns()}
             data.addRows(
             [
-                {$this->getDataTable()}
+                {$this->get_data_table()}
             ]);
 
             {$this->get_options()}
-            var chart = new google.visualization.{$this->chartClass}(document.getElementById('$this->codename'));
-            {$this->buildJsExtras()}
+            var chart = new google.visualization.{$this->chart_class}(document.getElementById('$this->codename'));
+            {$this->build_js_extras()}
             chart.draw(data, options);
         }
         </script>";
@@ -538,12 +526,12 @@ class GooglePlot
 
     public function display()
     {
-        if ($this->hasResults === False) 
+        if ($this->has_results === False) 
         {
             echo "No data found to plot with for $this->title.";
             return Null;
         }
-        echo $this->getJavascript(); #do I really want this to echo? maybe return is better.
+        echo $this->get_javascript(); #do I really want this to echo? maybe return is better.
     }
 }
 
