@@ -18,7 +18,7 @@
 class GooglePlot
 {
 
-	include('config/config.php');	
+	require_once('config/Config.php');	
 
     private $kind;
     private $dependents;
@@ -108,7 +108,8 @@ class GooglePlot
 
     public function setIsControllable($boolean)
     {
-        if (is_bool($boolean) === False) {
+        if (is_bool($boolean) === False) 
+        {
             $type = gettype($boolean);
             throw new Exception("setIsControllable of GooglePlot class requires boolean input. $type was given.");
         }
@@ -163,7 +164,8 @@ class GooglePlot
 
     public function setIsSharingAxes($boolean)
     {
-        if (!is_bool($boolean)) {
+        if (!is_bool($boolean)) 
+        {
             $type = gettype($boolean);
             throw new Exception ("setIsSharingAxes() of GooglePlot class requires type Boolean; $type was given.");
         }
@@ -184,14 +186,17 @@ class GooglePlot
     }
 
 
-    public function with($option) {
+    public function with($option) 
+    {
         $option = strtolower($option);
 
-        if (!in_array($option, $this->config->supported_options)) {
+        if (!in_array($option, $this->config->supported_options)) 
+        {
             throw new Exception("$option is not a supported with() option.");
         }
         
-        if (in_array($option, $this->options)) {
+        if (in_array($option, $this->options)) 
+        {
             return $this;
         }
 
@@ -203,16 +208,20 @@ class GooglePlot
     # TODO:
     # Build out the various with_() functions.
 
-    private function with_separate_axes($mode) { 
-        switch ($mode) {
+    private function with_separate_axes($mode) 
+    { 
+        // there will be more cases here eventually
+        switch ($mode) 
+        {
             case 'special_options':
-
         }
     } 
 
 
-    private function with_stacked($mode) {
-        switch ($mode) {
+    private function with_stacked($mode) 
+    {
+        switch ($mode) 
+        {
             case 'special_options':
                 return "isStacked: true,\n";
                 break;
@@ -306,26 +315,30 @@ class GooglePlot
         $data_body = "";
         foreach ($this->data as $row)
         {
-            if ($this->getIndependentType() == 'date' && array_key_exists($row->{$this->getIndependent()}, GooglePlot::$releases))
-            {
+            if ($this->getIndependentType() == 'date' && 
+                array_key_exists($row->{$this->getIndependent()}, 
+                                 $this->config->annotated_dates)) {
                 $annotation = "'R'";
-                $annotation_text = "'{$this::$releases[$row->{$this->independent}]}'";
-            } else {
+                $annotation_text = "'{$this->config->annotated_dates[$row->{$this->independent}]}'";
+            } else 
+            {
                 $annotation = 'null';
                 $annotation_text = "null";
             }
             
             $x = $this->prepare_independent($row->{$this->independent});
             $data_body .= "[$x";
-            foreach ($this->dependents as $y)
+            foreach ($this->dependents as $y) 
             {
                 $value = $row->{$y};
-                if ($value == NULL) {
+                if ($value == NULL) 
+                {
                     $value = 0;
                 }
                 $data_body .= ", $value";
             }
-            if ($this->independentType == 'date') {
+            if ($this->independentType == 'date') 
+            {
                 $data_body .= ", $annotation";
                 $data_body .= ", $annotation_text";
             }
@@ -335,10 +348,11 @@ class GooglePlot
     }    
 
 
-    private function get_special_options()
+    private function get_special_options() 
     {
         $special_options = "";
-        foreach ($this->options as $option) {
+        foreach ($this->options as $option) 
+        {
             $func_name = "with_$option";
             $special_options .= $this->$func_name('special_options');
         }
@@ -349,7 +363,8 @@ class GooglePlot
 
     public function setPointSizeOptions($size=Null)
     {
-        if ($size != Null) {
+        if ($size != Null) 
+        {
             $this->pointSize = $size;
             return $this;
         }
@@ -369,7 +384,8 @@ class GooglePlot
 
     public function getPointSize()
     {
-        if (isset($this->pointSize) === False) {
+        if (isset($this->pointSize) === False) 
+        {
             $this->setPointSizeOptions();
         }
         return $this->pointSize;
@@ -429,7 +445,8 @@ class GooglePlot
             $columns .= "\n\t\t\t";
             $columns .= "data.addColumn('number', '$dependent');";
         }
-        if ($this->independentType == 'date') {
+        if ($this->independentType == 'date') 
+        {
             $columns .= " data.addColumn({type:'string', role:'annotation'});
             data.addColumn({type:'string', role:'annotationText'});";
         }
@@ -442,13 +459,15 @@ class GooglePlot
     {
         $axes = "vAxes: {\n";
         $series = "\t\t\t\tseries: {\n";
-        if ($this->isSharingAxes === False) {
+        if ($this->isSharingAxes === False) 
+        {
             foreach ($this->dependents as $index => $y)
             {
                 $axes .= "\t\t\t\t\t$index: {title: '$y'},\n";
                 $series .= "\t\t\t\t\t$index:{ targetAxisIndex: $index},\n";
             }
-        } else if ($this->isSharingAxes === True) {
+        } else if ($this->isSharingAxes === True) 
+        {
             $axes .= "\t\t\t\t\t0: {title: ''},\n";
             foreach ($this->dependents as $index => $y)
             {
@@ -477,7 +496,8 @@ class GooglePlot
 
     private function buildJsExtras()
     {
-        if ($this->isIncludingPng === True) {
+        if ($this->isIncludingPng === True) 
+        {
             return "google.visualization.events.addListener(chart, 'ready', function () {
                  png = chart.getImageURI();
              });";
@@ -518,7 +538,8 @@ class GooglePlot
 
     public function display()
     {
-        if ($this->hasResults === False) {
+        if ($this->hasResults === False) 
+        {
             echo "No data found to plot with for $this->title.";
             return Null;
         }

@@ -2,11 +2,14 @@
 
 require_once('../GoogleChart.php');
 
-class AreaChart extends GoogleChart {
+class AreaChart extends GoogleChart 
+{
     
-    public function __construct(GoogleChart $chart) {
+    public function __construct(GoogleChart $chart) 
+    {
 
     }
+
 }
 
 ?>
