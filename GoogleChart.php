@@ -3,17 +3,18 @@
 
 // TODO:
 // 
-//      - each chartClass should have its own PHP class
-//          - mkdir charts
-//          - PiChart.php, BarChart.php, etc.
-//          - each of these will extend GoogleChart.php
-//      
+//      - finish building out charts classes for transition to library-style
+//
 //          - constructor will do something along these lines, akin to a driver:
 //              - construct things common to ALL types of chart (data, title, etc)
 //              - $this->class_instance = $this->kind . "Chart"
 //              - return new {$this->class_instance}($this);
 //      - adhere to 80 width lines
 //      - build out $config options
+//
+//      Currently, the $data property can really only accept Mysql_Result
+//          - work to make the data input stronger, and tranform all inputted
+//          data into a common format.
 
 class GooglePlot
 {
@@ -48,7 +49,7 @@ class GooglePlot
         $this->title = $args['title'];
         $this->has_results = $args['has_results'] ?: True;
         if ($this->has_results === True)
-        {
+        {   
             $this->kind = $args['kind'] ?: $this->config->default_kind;
             $this->codename = $this->construct_codename();
             $this->data = $args['data'];
@@ -60,7 +61,7 @@ class GooglePlot
             $this->linked_report = $args['linked_report'] ?: Null;
             if (!$this->dependents = $args['dependents'])
             {
-               $this->build_dependents_guess();
+                $this->build_dependents_guess();
             }
             $this->chart_class = $this->lookup_chart_class();
             $this->package = $this->lookup_package(); 
