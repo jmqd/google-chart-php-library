@@ -16,10 +16,10 @@
 //          - work to make the data input stronger, and tranform all inputted
 //          data into a common format.
 
-class GooglePlot
-{
+require_once('config/Config.php');	
 
-	require_once('config/Config.php');	
+class GoogleChart
+{
 
     private $kind;
     private $dependents;
@@ -47,22 +47,35 @@ class GooglePlot
     {
         $this->config = new Config();
         $this->title = $args['title'];
-        $this->has_results = $args['has_results'] ?: True;
+        $this->has_results = array_key_exists('has_results', $args)
+            ? $args['has_results']
+            : true;
         if ($this->has_results === True)
         {   
-            $this->kind = $args['kind'] ?: $this->config->default_kind;
+            $this->kind = array_key_exists('kind', $args)
+                ? $this->set_kind($args['kind'])
+                : $this->set_kind($this->config->default_chart);
+            var_dump($this->kind); exit;
             $this->codename = $this->construct_codename();
             $this->data = $args['data'];
             $this->data_transformer();
             $this->refresh_data_headers();
-            $this->is_controllable = $args['is_controllable'] ?: False
-            $this->set_independent($args['independent'] ?: '');
-            $this->is_including_png = $args['is_including_png'] ?: False;
-            $this->linked_report = $args['linked_report'] ?: Null;
-            if (!$this->dependents = $args['dependents'])
-            {
-                $this->build_dependents_guess();
-            }
+            $this->is_controllable = array_key_exists('is_controllable', $args) 
+                ? $args['is_controllable']
+                : false;
+            $args['independent'] = array_key_exists('independent', $args)
+                ? $args['independent']
+                : '';
+            $this->set_independent($args['independent']);
+            $this->is_including_png = array_key_exists('is_including_png', $args)
+                ? $args['is_including_png']
+                : false;
+            $this->linked_report = array_key_exists('linked_report', $args)
+                ? $args['linked_reports']
+                : null;
+            $this->dependents = array_key_exists('dependents', $args)
+                ? $args['dependents']
+                : $this->build_dependents_guess();
             $this->chart_class = $this->lookup_chart_class();
             $this->package = $this->lookup_package(); 
             $this->is_sharing_axes = $args['is_sharing_axes'] ?: True;
@@ -72,12 +85,13 @@ class GooglePlot
 
     private function construct_codename()
     {
-        $codename = preg_replace('/[^a-zA-Z]/', '', $this->title) 
+        $codename = preg_replace('/[^a-zA-Z]/', '', $this->title); 
         $codename .= substr(md5(rand()), 0, 7);
 
-        return $codename
-
+        return $codename;
     }
+
+
     private function refresh_data_headers()
     {
         $this->data_headers = [];
@@ -159,7 +173,7 @@ class GooglePlot
 
     public function set_kind($kind)
     {
-        $this->kind = $kind;
+        $this->kind = strtolower($kind);
         return $this;
     }
 
