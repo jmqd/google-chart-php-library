@@ -544,8 +544,8 @@ class GoogleChart
         $js = "
         <div id='$this->codename' style='border: 0px solid; width:1400px;'></div>
         <script type='text/javascript'>
-        google.load('visualization', '1', {packages:['{$this->package}']});
-        google.setOnLoadCallback($this->codename);
+        google.charts.load('current', {packages:['{$this->package}']});
+        google.charts.setOnLoadCallback($this->codename);
         function $this->codename() {
             var data = new google.visualization.DataTable()
             {$this->build_columns()}
