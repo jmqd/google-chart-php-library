@@ -53,11 +53,11 @@ class GoogleChart
         if ($this->has_results === True)
         {   
             $this->kind = array_key_exists('kind', $args)
-                ? $this->set_kind($args['kind'])
-                : $this->set_kind($this->config->default_chart);
-            var_dump($this->kind); exit;
+                ? $args['kind']
+                : $this->config->default_chart;
             $this->codename = $this->construct_codename();
             $this->data = $args['data'];
+			$this->objectify_data();
             $this->data_transformer();
             $this->refresh_data_headers();
             $this->is_controllable = array_key_exists('is_controllable', $args) 
@@ -78,7 +78,9 @@ class GoogleChart
                 : $this->build_dependents_guess();
             $this->chart_class = $this->lookup_chart_class();
             $this->package = $this->lookup_package(); 
-            $this->is_sharing_axes = $args['is_sharing_axes'] ?: True;
+            $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args)
+                ? $args['is_sharing_axes']
+                : True;
             $this->make_js_data_table();
         }
     }
@@ -92,6 +94,22 @@ class GoogleChart
     }
 
 
+    private function objectify_data()
+    {
+    	if (!is_object($this->data))
+        {
+            foreach ($this->data as $index => $row)
+            {
+                if (isset($row))
+                {
+                    $data[$index] = json_decode(json_encode($row));
+                }
+            }
+            $this->data = $data;
+        }       
+    } 
+   
+ 
     private function refresh_data_headers()
     {
         $this->data_headers = [];
@@ -363,10 +381,13 @@ class GoogleChart
     private function get_special_options() 
     {
         $special_options = "";
-        foreach ($this->options as $option) 
+        if (!empty($this->options))
         {
-            $func_name = "with_$option";
-            $special_options .= $this->$func_name('special_options');
+            foreach ($this->options as $option) 
+            {
+                $func_name = "with_$option";
+                $special_options .= $this->$func_name('special_options');
+            }
         }
         $special_options .= "pointSize: {$this->get_point_size()}\n";
         return $special_options;
@@ -548,6 +569,11 @@ class GoogleChart
     //
     // public function buildJsForDashboard()
 
+    // putting this here for now -- am phasing it out
+    private function build_js_extras()
+    {
+        return '';
+    }
 
     public function display()
     {
