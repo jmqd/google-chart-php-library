@@ -22,6 +22,7 @@ class Config
             ];
 
         $this->default_chart = 'line';
+        $this->default_style = "style='border: 0px solid; width:1400px;";
 
     }
 

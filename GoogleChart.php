@@ -5,10 +5,10 @@
 // 
 //      - finish building out charts classes for transition to library-style
 //
-//          - constructor will do something along these lines, akin to a driver:
-//              - construct things common to ALL types of chart (data, title, etc)
-//              - $this->class_instance = $this->kind . "Chart"
-//              - return new {$this->class_instance}($this);
+//         - constructor will do something along these lines, akin to a driver:
+//           - construct things common to ALL types of chart (data, title, etc)
+//           - $this->class_instance = $this->kind . "Chart"
+//           - return new {$this->class_instance}($this);
 //      - adhere to 80 width lines
 //      - build out $config options
 //
@@ -67,7 +67,8 @@ class GoogleChart
                 ? $args['independent']
                 : '';
             $this->set_independent($args['independent']);
-            $this->is_including_png = array_key_exists('is_including_png', $args)
+            $this->is_including_png = array_key_exists('is_including_png',
+                                                       $args)
                 ? $args['is_including_png']
                 : false;
             $this->linked_report = array_key_exists('linked_report', $args)
@@ -87,6 +88,7 @@ class GoogleChart
 
     private function construct_codename()
     {
+        // generate a 'unique' codename to avoid naming collisions
         $codename = preg_replace('/[^a-zA-Z]/', '', $this->title); 
         $codename .= substr(md5(rand()), 0, 7);
 
@@ -96,6 +98,7 @@ class GoogleChart
 
     private function objectify_data()
     {
+        // presently, data is assumed to be objects in all operations
     	if (!is_object($this->data))
         {
             foreach ($this->data as $index => $row)
@@ -145,7 +148,8 @@ class GoogleChart
         if (is_bool($boolean) === False) 
         {
             $type = gettype($boolean);
-            throw new Exception("set_is_controllable of GooglePlot class requires boolean input. $type was given.");
+            throw new Exception("set_is_controllable of GooglePlot class "
+                . "requires boolean input. $type was given.");
         }
         $this->is_controllable = $boolean;
         return $this;
@@ -154,7 +158,8 @@ class GoogleChart
 
     private function build_dependents_guess()
     {   
-        return array_diff($this->get_data_headers(), [$this->get_independent()]);
+        return array_diff($this->get_data_headers(),
+                          [$this->get_independent()]);
     }
 
     // factor this into with() strategy function if possible?
@@ -172,14 +177,25 @@ class GoogleChart
                 $this->independent = $independent['name'];
                 $this->independent_type = $independent['type'];
                 break;
-            case (!empty($independent) && DateTime::createFromFormat('Y-m-d', $this->get_data()[0]->$independent) !== FALSE):
+
+            case (!empty($independent) && 
+                DateTime::createFromFormat
+                (
+                    'Y-m-d', 
+                    $this->get_data()[0]->$independent
+                ) !== FALSE):
+
                 $this->independent = $independent;
                 $this->independent_type = 'date';
                 break;
-            case (in_array('date', $this->get_data_headers()) && empty($independent)):
+
+            case (in_array('date', $this->get_data_headers()) && 
+                empty($independent)):
+
                 $this->independent = 'date';
                 $this->independent_type = 'date';
                 break;
+
             default:
                 $this->independent = $independent;
                 $this->independent_type = 'string';
@@ -201,8 +217,10 @@ class GoogleChart
         if (!is_bool($boolean)) 
         {
             $type = gettype($boolean);
-            throw new Exception ("set_is_sharing_axes() of GooglePlot class requires type Boolean; $type was given.");
+            throw new Exception ("set_is_sharing_axes() of GooglePlot class "
+                . "requires type Boolean; $type was given.");
         }
+
         $this->is_sharing_axes = $boolean;
         return $this;
     }
@@ -347,9 +365,11 @@ class GoogleChart
         {
             if ($this->get_independent_type() == 'date' && 
                 array_key_exists($row->{$this->get_independent()}, 
-                                 $this->config->annotated_dates)) {
+                                 $this->config->annotated_dates)) 
+            {
                 $annotation = "'R'";
-                $annotation_text = "'{$this->config->annotated_dates[$row->{$this->independent}]}'";
+                $annotation_text = "'{$this->config->annotated_dates[
+                    $row->{$this->independent}]}'";
             } else 
             {
                 $annotation = 'null';
@@ -532,7 +552,8 @@ class GoogleChart
     {
         if ($this->is_including_png === True) 
         {
-            return "google.visualization.events.addListener(chart, 'ready', function () {
+            return "google.visualization.events.addListener(chart, 'ready', "
+                . "function () {
                  png = chart.getImageURI();
              });";
         }
@@ -542,7 +563,7 @@ class GoogleChart
     private function build_js_for_chart()
     {
         $js = "
-        <div id='$this->codename' style='border: 0px solid; width:1400px;'></div>
+        <div id='$this->codename' {$this->config->default_style}'></div>
         <script type='text/javascript'>
         google.charts.load('current', {packages:['{$this->package}']});
         google.charts.setOnLoadCallback($this->codename);
@@ -555,7 +576,9 @@ class GoogleChart
             ]);
 
             {$this->get_options()}
-            var chart = new google.visualization.{$this->chart_class}(document.getElementById('$this->codename'));
+            var chart = new google.visualization.{$this->chart_class}"
+        . "            (document.getElementById('$this->codename'));
+            
             {$this->build_js_extras()}
             chart.draw(data, options);
         }
@@ -565,7 +588,7 @@ class GoogleChart
     }
 
     // TODO
-    // need to build out method to create a google.visualization.Dashboard object
+    // build out method to create a google.visualization.Dashboard object
     //
     // public function buildJsForDashboard()
 
@@ -582,7 +605,7 @@ class GoogleChart
             echo "No data found to plot with for $this->title.";
             return Null;
         }
-        echo $this->get_javascript(); #do I really want this to echo? maybe return is better.
+        echo $this->get_javascript(); # is echo bad here? maybe return is better.
     }
 }
 
