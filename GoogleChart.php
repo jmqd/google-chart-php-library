@@ -28,15 +28,12 @@ class GoogleChart
     private $codename;
     private $title;
     private $data;
-    private $chart_class;
     private $package;
     private $is_sharing_axes;
     private $independent_type;
     private $data_headers;
-    private $is_controllable;
     private $is_including_png;
     private $has_results;
-    private $linked_report;
 
 
     # I wrote this constructor when I was much less experienced...
@@ -55,27 +52,18 @@ class GoogleChart
         {   
             return "Nothing data to plot for $this->title";
         }
-        $this->kind = array_key_exists('kind', $args)
-            ? $args['kind']
-            : $this->config->default_chart;
+
         $this->codename = $this->construct_codename();
         $this->data = $args['data'];
         $this->objectify_data();
         $this->refresh_data_headers();
-        $this->is_controllable = array_key_exists('is_controllable', $args) 
-            ? $args['is_controllable']
-            : false;
         $args['independent'] = array_key_exists('independent', $args)
             ? $args['independent']
             : '';
         $this->set_independent($args['independent']);
-        $this->is_including_png = array_key_exists('is_including_png',
-                                                   $args)
+        $this->is_including_png = array_key_exists('is_including_png', $args)
             ? $args['is_including_png']
             : false;
-        $this->linked_report = array_key_exists('linked_report', $args)
-            ? $args['linked_reports']
-            : null;
         $this->dependents = array_key_exists('dependents', $args)
             ? $args['dependents']
             : $this->build_dependents_guess();
