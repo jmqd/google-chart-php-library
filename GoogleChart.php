@@ -50,41 +50,43 @@ class GoogleChart
         $this->has_results = array_key_exists('has_results', $args)
             ? $args['has_results']
             : true;
-        if ($this->has_results === True)
+
+        if ($this->has_results === false)
         {   
-            $this->kind = array_key_exists('kind', $args)
-                ? $args['kind']
-                : $this->config->default_chart;
-            $this->codename = $this->construct_codename();
-            $this->data = $args['data'];
-			$this->objectify_data();
-            $this->data_transformer();
-            $this->refresh_data_headers();
-            $this->is_controllable = array_key_exists('is_controllable', $args) 
-                ? $args['is_controllable']
-                : false;
-            $args['independent'] = array_key_exists('independent', $args)
-                ? $args['independent']
-                : '';
-            $this->set_independent($args['independent']);
-            $this->is_including_png = array_key_exists('is_including_png',
-                                                       $args)
-                ? $args['is_including_png']
-                : false;
-            $this->linked_report = array_key_exists('linked_report', $args)
-                ? $args['linked_reports']
-                : null;
-            $this->dependents = array_key_exists('dependents', $args)
-                ? $args['dependents']
-                : $this->build_dependents_guess();
-            $this->chart_class = $this->lookup_chart_class();
-            $this->package = $this->lookup_package(); 
-            $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args)
-                ? $args['is_sharing_axes']
-                : True;
-            $this->make_js_data_table();
+            return "Nothing data to plot for $this->title";
         }
-    }
+        $this->kind = array_key_exists('kind', $args)
+            ? $args['kind']
+            : $this->config->default_chart;
+        $this->codename = $this->construct_codename();
+        $this->data = $args['data'];
+        $this->objectify_data();
+        $this->refresh_data_headers();
+        $this->is_controllable = array_key_exists('is_controllable', $args) 
+            ? $args['is_controllable']
+            : false;
+        $args['independent'] = array_key_exists('independent', $args)
+            ? $args['independent']
+            : '';
+        $this->set_independent($args['independent']);
+        $this->is_including_png = array_key_exists('is_including_png',
+                                                   $args)
+            ? $args['is_including_png']
+            : false;
+        $this->linked_report = array_key_exists('linked_report', $args)
+            ? $args['linked_reports']
+            : null;
+        $this->dependents = array_key_exists('dependents', $args)
+            ? $args['dependents']
+            : $this->build_dependents_guess();
+        $this->chart_class = $this->lookup_chart_class();
+        $this->package = $this->lookup_package(); 
+        $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args)
+            ? $args['is_sharing_axes']
+            : True;
+        $this->make_js_data_table();
+        }
+    
 
     private function construct_codename()
     {
@@ -134,25 +136,6 @@ class GoogleChart
     public function get_independent()
     {
         return $this->independent;
-    }
-
-
-    public function get_is_controllable()
-    {
-        return $this->is_controllable;
-    }
-
-
-    public function set_is_controllable($boolean)
-    {
-        if (is_bool($boolean) === False) 
-        {
-            $type = gettype($boolean);
-            throw new Exception("set_is_controllable of GooglePlot class "
-                . "requires boolean input. $type was given.");
-        }
-        $this->is_controllable = $boolean;
-        return $this;
     }
 
 
@@ -344,17 +327,6 @@ class GoogleChart
     }
 
 
-    private function data_transformer()
-    {
-        switch ($this->get_kind())
-        {
-            case 'pie':
-                break;
-            default:
-                break;
-        }
-    }
-    
     #TODO:
     #
     #clean this up.
@@ -534,20 +506,6 @@ class GoogleChart
     }
 
 
-    public function get_javascript()
-    {
-        switch ($this->get_is_controllable())
-        {
-            case True:
-                return $this->build_js_for_dashboard();
-                break;
-            case False:
-                return $this->build_js_for_chart();
-                break;
-        }
-    }
-
-
     private function buildJsExtras()
     {
         if ($this->is_including_png === True) 
@@ -578,8 +536,7 @@ class GoogleChart
             {$this->get_options()}
             var chart = new google.visualization.{$this->chart_class}"
         . "            (document.getElementById('$this->codename'));
-            
-            {$this->build_js_extras()}
+
             chart.draw(data, options);
         }
         </script>";
@@ -592,11 +549,6 @@ class GoogleChart
     //
     // public function buildJsForDashboard()
 
-    // putting this here for now -- am phasing it out
-    private function build_js_extras()
-    {
-        return '';
-    }
 
     public function display()
     {
@@ -605,7 +557,7 @@ class GoogleChart
             echo "No data found to plot with for $this->title.";
             return Null;
         }
-        echo $this->get_javascript(); # is echo bad here? maybe return is better.
+        echo $this->build_js_for_chart(); # is echo bad here? maybe return is better.
     }
 }
 
