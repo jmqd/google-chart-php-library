@@ -66,7 +66,6 @@ class GoogleChart
         $this->dependents = array_key_exists('dependents', $args)
             ? $args['dependents']
             : $this->build_dependents_guess();
-        $this->chart_class = $this->lookup_chart_class();
         $this->package = $this->lookup_package(); 
         $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args)
             ? $args['is_sharing_axes']
@@ -471,23 +470,25 @@ class GoogleChart
     private function get_axes_options()
     {
         $axes = "vAxes: {\n";
-        $series = "\t\t\t\tseries: {\n";
+        $series = "\t\t\t\t" . "series: {" . "\n";
         if ($this->is_sharing_axes === False) 
         {
             foreach ($this->dependents as $index => $y)
             {
-                $axes .= "\t\t\t\t\t$index: {title: '$y'},\n";
-                $series .= "\t\t\t\t\t$index:{ targetAxisIndex: $index},\n";
+                $axes .= "\t\t\t\t\t" . "$index: {title: '$y'}," . "\n";
+                $series .= "\t\t\t\t\t" . "$index:{ targetAxisIndex: $index},"
+                    . "\n";
             }
         } else if ($this->is_sharing_axes === True) 
         {
-            $axes .= "\t\t\t\t\t0: {title: ''},\n";
+            $axes .= "\t\t\t\t\t" . "0: {title: ''}," . "\n";
             foreach ($this->dependents as $index => $y)
             {
-                $series .= "\t\t\t\t\t$index:{ targetAxisIndex: 0},\n";
+                $series .= "\t\t\t\t\t" . "$index:{ targetAxisIndex: 0},"
+                    . "\n";
             }
         }
-        $axes .= "\t\t\t\t" . "}," ."\n";
+        $axes .= "\t\t\t\t" . "}," . "\n";
         $series .= "\t\t\t\t" . "}";
         return $axes . $series;
     }
