@@ -28,7 +28,6 @@ class GoogleChart
     private $codename;
     private $title;
     private $data;
-    private $package;
     private $is_sharing_axes;
     private $independent_type;
     private $data_headers;
