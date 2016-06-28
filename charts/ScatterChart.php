@@ -14,6 +14,7 @@ class ScatterChart extends GoogleChart
         $this->chart_class = 'ScatterChart';
 
     }
+
 }
 
 ?>

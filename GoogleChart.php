@@ -66,13 +66,20 @@ class GoogleChart
         $this->dependents = array_key_exists('dependents', $args)
             ? $args['dependents']
             : $this->build_dependents_guess();
-        $this->package = $this->lookup_package(); 
         $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args)
             ? $args['is_sharing_axes']
             : True;
-        $this->make_js_data_table();
-        }
+        $this->make_js_data_table(); 
+    }
     
+    // I've decided factory() > constructor for this class.
+    public function factory($data, $kind)
+    {
+        $this->config = new Config();
+        $this->data = $data;
+        $this->objectify_data();
+        $this->refresh_data_headers();
+    }
 
     private function construct_codename()
     {
@@ -426,24 +433,6 @@ class GoogleChart
                 return 'corechart';
                 break;
         }
-    }
-
-
-    private function lookup_chart_class()
-    {
-        $class_lookup = [
-            'timeseries' => 'LineChart',
-            'line' => 'LineChart',
-            'column' => 'ColumnChart',
-            'combo' => 'ComboChart',
-            'pie' => 'PieChart',
-            'area' => 'AreaChart',
-            'stacked' => 'AreaChart',
-            'bar' => 'BarChart',
-            'table' => 'Table',
-            'scatter' => 'ScatterChart',
-            ];
-        return $class_lookup[$this->kind];
     }
 
 

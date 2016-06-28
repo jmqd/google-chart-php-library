@@ -13,6 +13,7 @@ class Table extends GoogleChart
         $this->chart_class = 'Table';
     }
 
+
 }
 
 ?>
