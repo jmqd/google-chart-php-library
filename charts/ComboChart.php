@@ -2,7 +2,7 @@
 
 require_once('../GoogleChart.php');
 
-class ColumnChart extends GoogleChart 
+class ComboChart extends GoogleChart 
 {
     private $package;
     private $chart_class;
@@ -11,7 +11,7 @@ class ColumnChart extends GoogleChart
     public function __construct(GoogleChart $chart) 
     {
         $this->package = 'corechart';
-        $this->chart_class = 'ColumnChart'; 
+        $this->chart_class = 'ScatterChart';
     }
 }
 

@@ -5,10 +5,10 @@
 // 
 //      - finish building out charts classes for transition to library-style
 //
-//          - constructor will do something along these lines, akin to a driver:
-//              - construct things common to ALL types of chart (data, title, etc)
-//              - $this->class_instance = $this->kind . "Chart"
-//              - return new {$this->class_instance}($this);
+//         - constructor will do something along these lines, akin to a driver:
+//           - construct things common to ALL types of chart (data, title, etc)
+//           - $this->class_instance = $this->kind . "Chart"
+//           - return new {$this->class_instance}($this);
 //      - adhere to 80 width lines
 //      - build out $config options
 //
@@ -28,15 +28,11 @@ class GoogleChart
     private $codename;
     private $title;
     private $data;
-    private $chart_class;
-    private $package;
     private $is_sharing_axes;
     private $independent_type;
     private $data_headers;
-    private $is_controllable;
     private $is_including_png;
     private $has_results;
-    private $linked_report;
 
 
     # I wrote this constructor when I was much less experienced...
@@ -50,43 +46,44 @@ class GoogleChart
         $this->has_results = array_key_exists('has_results', $args)
             ? $args['has_results']
             : true;
-        if ($this->has_results === True)
+
+        if ($this->has_results === false)
         {   
-            $this->kind = array_key_exists('kind', $args)
-                ? $args['kind']
-                : $this->config->default_chart;
-            $this->codename = $this->construct_codename();
-            $this->data = $args['data'];
-			$this->objectify_data();
-            $this->data_transformer();
-            $this->refresh_data_headers();
-            $this->is_controllable = array_key_exists('is_controllable', $args) 
-                ? $args['is_controllable']
-                : false;
-            $args['independent'] = array_key_exists('independent', $args)
-                ? $args['independent']
-                : '';
-            $this->set_independent($args['independent']);
-            $this->is_including_png = array_key_exists('is_including_png', $args)
-                ? $args['is_including_png']
-                : false;
-            $this->linked_report = array_key_exists('linked_report', $args)
-                ? $args['linked_reports']
-                : null;
-            $this->dependents = array_key_exists('dependents', $args)
-                ? $args['dependents']
-                : $this->build_dependents_guess();
-            $this->chart_class = $this->lookup_chart_class();
-            $this->package = $this->lookup_package(); 
-            $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args)
-                ? $args['is_sharing_axes']
-                : True;
-            $this->make_js_data_table();
+            return "Nothing data to plot for $this->title";
         }
+
+        $this->codename = $this->construct_codename();
+        $this->data = $args['data'];
+        $this->objectify_data();
+        $this->refresh_data_headers();
+        $args['independent'] = array_key_exists('independent', $args)
+            ? $args['independent']
+            : '';
+        $this->set_independent($args['independent']);
+        $this->is_including_png = array_key_exists('is_including_png', $args)
+            ? $args['is_including_png']
+            : false;
+        $this->dependents = array_key_exists('dependents', $args)
+            ? $args['dependents']
+            : $this->build_dependents_guess();
+        $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args)
+            ? $args['is_sharing_axes']
+            : True;
+        $this->make_js_data_table(); 
+    }
+    
+    // I've decided factory() > constructor for this class.
+    public function factory($data, $kind)
+    {
+        $this->config = new Config();
+        $this->data = $data;
+        $this->objectify_data();
+        $this->refresh_data_headers();
     }
 
     private function construct_codename()
     {
+        // generate a 'unique' codename to avoid naming collisions
         $codename = preg_replace('/[^a-zA-Z]/', '', $this->title); 
         $codename .= substr(md5(rand()), 0, 7);
 
@@ -96,6 +93,7 @@ class GoogleChart
 
     private function objectify_data()
     {
+        // presently, data is assumed to be objects in all operations
     	if (!is_object($this->data))
         {
             foreach ($this->data as $index => $row)
@@ -134,27 +132,10 @@ class GoogleChart
     }
 
 
-    public function get_is_controllable()
-    {
-        return $this->is_controllable;
-    }
-
-
-    public function set_is_controllable($boolean)
-    {
-        if (is_bool($boolean) === False) 
-        {
-            $type = gettype($boolean);
-            throw new Exception("set_is_controllable of GooglePlot class requires boolean input. $type was given.");
-        }
-        $this->is_controllable = $boolean;
-        return $this;
-    }
-
-
     private function build_dependents_guess()
     {   
-        return array_diff($this->get_data_headers(), [$this->get_independent()]);
+        return array_diff($this->get_data_headers(),
+                          [$this->get_independent()]);
     }
 
     // factor this into with() strategy function if possible?
@@ -172,14 +153,25 @@ class GoogleChart
                 $this->independent = $independent['name'];
                 $this->independent_type = $independent['type'];
                 break;
-            case (!empty($independent) && DateTime::createFromFormat('Y-m-d', $this->get_data()[0]->$independent) !== FALSE):
+
+            case (!empty($independent) && 
+                DateTime::createFromFormat
+                (
+                    'Y-m-d', 
+                    $this->get_data()[0]->$independent
+                ) !== FALSE):
+
                 $this->independent = $independent;
                 $this->independent_type = 'date';
                 break;
-            case (in_array('date', $this->get_data_headers()) && empty($independent)):
+
+            case (in_array('date', $this->get_data_headers()) && 
+                empty($independent)):
+
                 $this->independent = 'date';
                 $this->independent_type = 'date';
                 break;
+
             default:
                 $this->independent = $independent;
                 $this->independent_type = 'string';
@@ -201,8 +193,10 @@ class GoogleChart
         if (!is_bool($boolean)) 
         {
             $type = gettype($boolean);
-            throw new Exception ("set_is_sharing_axes() of GooglePlot class requires type Boolean; $type was given.");
+            throw new Exception ("set_is_sharing_axes() of GooglePlot class "
+                . "requires type Boolean; $type was given.");
         }
+
         $this->is_sharing_axes = $boolean;
         return $this;
     }
@@ -326,17 +320,6 @@ class GoogleChart
     }
 
 
-    private function data_transformer()
-    {
-        switch ($this->get_kind())
-        {
-            case 'pie':
-                break;
-            default:
-                break;
-        }
-    }
-    
     #TODO:
     #
     #clean this up.
@@ -347,9 +330,11 @@ class GoogleChart
         {
             if ($this->get_independent_type() == 'date' && 
                 array_key_exists($row->{$this->get_independent()}, 
-                                 $this->config->annotated_dates)) {
+                                 $this->config->annotated_dates)) 
+            {
                 $annotation = "'R'";
-                $annotation_text = "'{$this->config->annotated_dates[$row->{$this->independent}]}'";
+                $annotation_text = "'{$this->config->annotated_dates[
+                    $row->{$this->independent}]}'";
             } else 
             {
                 $annotation = 'null';
@@ -451,24 +436,6 @@ class GoogleChart
     }
 
 
-    private function lookup_chart_class()
-    {
-        $class_lookup = [
-            'timeseries' => 'LineChart',
-            'line' => 'LineChart',
-            'column' => 'ColumnChart',
-            'combo' => 'ComboChart',
-            'pie' => 'PieChart',
-            'area' => 'AreaChart',
-            'stacked' => 'AreaChart',
-            'bar' => 'BarChart',
-            'table' => 'Table',
-            'scatter' => 'ScatterChart',
-            ];
-        return $class_lookup[$this->kind];
-    }
-
-
     private function build_columns()
     {
         $columns = "";
@@ -492,39 +459,27 @@ class GoogleChart
     private function get_axes_options()
     {
         $axes = "vAxes: {\n";
-        $series = "\t\t\t\tseries: {\n";
+        $series = "\t\t\t\t" . "series: {" . "\n";
         if ($this->is_sharing_axes === False) 
         {
             foreach ($this->dependents as $index => $y)
             {
-                $axes .= "\t\t\t\t\t$index: {title: '$y'},\n";
-                $series .= "\t\t\t\t\t$index:{ targetAxisIndex: $index},\n";
+                $axes .= "\t\t\t\t\t" . "$index: {title: '$y'}," . "\n";
+                $series .= "\t\t\t\t\t" . "$index:{ targetAxisIndex: $index},"
+                    . "\n";
             }
         } else if ($this->is_sharing_axes === True) 
         {
-            $axes .= "\t\t\t\t\t0: {title: ''},\n";
+            $axes .= "\t\t\t\t\t" . "0: {title: ''}," . "\n";
             foreach ($this->dependents as $index => $y)
             {
-                $series .= "\t\t\t\t\t$index:{ targetAxisIndex: 0},\n";
+                $series .= "\t\t\t\t\t" . "$index:{ targetAxisIndex: 0},"
+                    . "\n";
             }
         }
-        $axes .= "\t\t\t\t" . "}," ."\n";
+        $axes .= "\t\t\t\t" . "}," . "\n";
         $series .= "\t\t\t\t" . "}";
         return $axes . $series;
-    }
-
-
-    public function get_javascript()
-    {
-        switch ($this->get_is_controllable())
-        {
-            case True:
-                return $this->build_js_for_dashboard();
-                break;
-            case False:
-                return $this->build_js_for_chart();
-                break;
-        }
     }
 
 
@@ -532,7 +487,8 @@ class GoogleChart
     {
         if ($this->is_including_png === True) 
         {
-            return "google.visualization.events.addListener(chart, 'ready', function () {
+            return "google.visualization.events.addListener(chart, 'ready', "
+                . "function () {
                  png = chart.getImageURI();
              });";
         }
@@ -542,10 +498,10 @@ class GoogleChart
     private function build_js_for_chart()
     {
         $js = "
-        <div id='$this->codename' style='border: 0px solid; width:1400px;'></div>
+        <div id='$this->codename' {$this->config->default_style}'></div>
         <script type='text/javascript'>
-        google.load('visualization', '1', {packages:['{$this->package}']});
-        google.setOnLoadCallback($this->codename);
+        google.charts.load('current', {packages:['{$this->package}']});
+        google.charts.setOnLoadCallback($this->codename);
         function $this->codename() {
             var data = new google.visualization.DataTable()
             {$this->build_columns()}
@@ -555,8 +511,9 @@ class GoogleChart
             ]);
 
             {$this->get_options()}
-            var chart = new google.visualization.{$this->chart_class}(document.getElementById('$this->codename'));
-            {$this->build_js_extras()}
+            var chart = new google.visualization.{$this->chart_class}"
+        . "            (document.getElementById('$this->codename'));
+
             chart.draw(data, options);
         }
         </script>";
@@ -565,15 +522,10 @@ class GoogleChart
     }
 
     // TODO
-    // need to build out method to create a google.visualization.Dashboard object
+    // build out method to create a google.visualization.Dashboard object
     //
     // public function buildJsForDashboard()
 
-    // putting this here for now -- am phasing it out
-    private function build_js_extras()
-    {
-        return '';
-    }
 
     public function display()
     {
@@ -582,7 +534,7 @@ class GoogleChart
             echo "No data found to plot with for $this->title.";
             return Null;
         }
-        echo $this->get_javascript(); #do I really want this to echo? maybe return is better.
+        echo $this->build_js_for_chart(); # is echo bad here? maybe return is better.
     }
 }
 
