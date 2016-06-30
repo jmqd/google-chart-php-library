@@ -345,7 +345,7 @@ class GoogleChart
     }
 
 
-    protected function build()
+    public function build()
     {
         if (empty($this->independent))
         {
