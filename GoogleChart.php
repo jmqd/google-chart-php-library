@@ -21,6 +21,9 @@ class GoogleChart
 {
 
     public $class_name;
+    public $chart_javascript;
+
+    protected $data;
 
     private $kind;
     private $dependents;
@@ -28,7 +31,6 @@ class GoogleChart
     private $data_table;
     private $codename;
     private $title;
-    protected $data;
     private $independent_type;
     private $data_headers;
     private $options;
@@ -46,7 +48,7 @@ class GoogleChart
         $this->construct_codename();
         $this->objectify_data();
         $this->refresh_data_headers();
-        // $this->make_js_data_table(); 
+        // $this->build_js_data_table(); 
     }
     
     // I've decided factory() > constructor for this class.
@@ -135,8 +137,19 @@ class GoogleChart
 
     private function build_dependents_guess()
     {   
-        return array_diff($this->get_data_headers(),
-                          [$this->get_independent()]);
+        if (!empty($this->dependents))
+        {
+            return true;
+        }
+
+        $this->dependents = array_diff($this->get_data_headers(),
+                                       [$this->get_independent()]);
+        if (empty($this->dependents))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     // factor this into with() strategy function if possible?
@@ -180,6 +193,23 @@ class GoogleChart
         }
         return $this;
     } 
+
+
+    protected function build_independent_guess()
+    {
+        if (!empty($this->independent))
+        {
+            return true;
+        }
+
+        if (in_array('date', $this->data_headers))
+        {
+            $this->independent = 'date';
+            return true;
+        }
+        
+        return false;
+    }
 
 
     public function set_kind($kind)
@@ -315,6 +345,33 @@ class GoogleChart
     }
 
 
+    protected function build()
+    {
+        if (empty($this->independent))
+        {
+            $guessed = $this->build_independent_guess();
+
+            if ($guessed === false)
+            {
+                throw new Exception("Unable to find/guess independent var.");
+            }
+        } 
+
+        if (empty($this->dependents))
+        {
+            $guessed = $this->build_dependents_guess();
+
+            if ($guessed === false)
+            {
+                throw new Exception("Unable to find/guess dependent vars.");
+            }
+        }
+        
+        $this->build_js_data_table();
+        $this->build_chart_javascript();
+    }
+
+
     private function get_data_table()
     {
         return $this->data_table;
@@ -324,7 +381,7 @@ class GoogleChart
     #TODO:
     #
     #clean this up.
-    private function make_js_data_table()
+    private function build_js_data_table()
     {
         $data_body = "";
         foreach ($this->data as $row)
@@ -496,9 +553,15 @@ class GoogleChart
     }
 
 
-    private function build_js_for_chart()
+    public function get_chart_javascript()
     {
-        $js = "
+        return $this->chart_javascript;
+    }
+
+
+    private function build_chart_javascript()
+    {
+        $this->chart_javascript = "
         <div id='$this->codename' {$this->config['default_div_style']}'></div>
         <script type='text/javascript'>
         google.charts.load('current', {packages:['{$this->package}']});
@@ -518,8 +581,6 @@ class GoogleChart
             chart.draw(data, options);
         }
         </script>";
-
-        return $js;
     }
 
     // TODO
@@ -535,7 +596,7 @@ class GoogleChart
             echo "No data found to plot with for $this->title.";
             return Null;
         }
-        echo $this->build_js_for_chart(); # is echo bad here? maybe return is better.
+        return $this->get_chart_javascript();
     }
 }
 
