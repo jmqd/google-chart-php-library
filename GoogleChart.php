@@ -16,7 +16,6 @@
 //          - work to make the data input stronger, and tranform all inputted
 //          data into a common format.
 
-require('config/Config.php');	
 
 class GoogleChart
 {
@@ -30,11 +29,10 @@ class GoogleChart
     private $codename;
     private $title;
     private $data;
-    private $is_sharing_axes;
     private $independent_type;
     private $data_headers;
-    private $is_including_png;
-    private $has_results;
+    private $options;
+    private $annotated_dates;
 
 
     # I wrote this constructor when I was much less experienced...
@@ -43,7 +41,8 @@ class GoogleChart
     # refactor this into better code. 
     protected function __construct($args)
     {
-        $this->config = new Config();
+        $this->options = $this->config['default_options'];
+        $this->annotated_dates = $this->config['annotated_dates'];
         $this->construct_codename();
         $this->objectify_data();
         $this->refresh_data_headers();
@@ -53,23 +52,39 @@ class GoogleChart
     // I've decided factory() > constructor for this class.
     public function factory($data, $kind)
     {
-        $class_name = Config::get_class_name($kind);
+        $config = include('config/config.php');
+
+        if (!array_key_exists($kind, $config['class_name_map']))
+        {
+            throw new Exception("'$kind' is not a supported chart type.");
+        }
+        
+        $class_name = $config['class_name_map'][$kind];
         $chart = new $class_name();
         $chart->set_kind($kind);
         $chart->set_data($data);
+        $chart->set_config($config);
         return $chart;
     }
 
 
+    public function set_annotated_dates($dates)
+    {
+        if (!is_array($dates))
+        {
+            throw new Exception("set_annotated_dates() only takes an array.");
+        }
+
+        $this->annotated_dates = $dates;
+        return $this;
+    }
+
+    // do I want this to be protected?...
     protected function set_data($data)
     {
         $this->data = $data;
     }
 
-    private function get_class_name()
-    {
-        return $this->config->class_map[$kind];
-    }
 
     private function construct_codename()
     {
@@ -206,9 +221,9 @@ class GoogleChart
     {
         $option = strtolower($option);
 
-        if (!in_array($option, $this->config->supported_options)) 
+        if (!in_array($option, $this->config['supported_options'])) 
         {
-            throw new Exception("$option is not a supported with() option.");
+            throw new Exception("'$option' is not a supported with() option.");
         }
         
         if (in_array($option, $this->options)) 
@@ -318,11 +333,11 @@ class GoogleChart
         {
             if ($this->get_independent_type() == 'date' && 
                 array_key_exists($row->{$this->get_independent()}, 
-                                 $this->config->annotated_dates)) 
+                                 $this->annotated_dates)) 
             {
                 $annotation = "'R'";
-                $annotation_text = "'{$this->config->annotated_dates[
-                    $row->{$this->independent}]}'";
+                $annotation_text = "'{$this
+                    ->annotated_dates[$row->{$this->independent}]}'";
             } else 
             {
                 $annotation = 'null';
@@ -486,7 +501,7 @@ class GoogleChart
     private function build_js_for_chart()
     {
         $js = "
-        <div id='$this->codename' {$this->config->default_style}'></div>
+        <div id='$this->codename' {$this->config['default_div_style']}'></div>
         <script type='text/javascript'>
         google.charts.load('current', {packages:['{$this->package}']});
         google.charts.setOnLoadCallback($this->codename);
