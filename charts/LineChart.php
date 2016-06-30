@@ -10,9 +10,7 @@ class LineChart extends GoogleChart
     {
         $this->package = 'corechart';
         $this->chart_class = 'LineChart';
-        $this->config = $config;
-        $this->data = $data;
-        parent::__construct();
+        parent::__construct($data, $config);
     }
 }
 

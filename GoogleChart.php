@@ -26,6 +26,7 @@ class GoogleChart
     protected $data;
 
     protected $kind;
+    protected $config;
     protected $dependents;
     protected $independent;
     protected $data_table;
@@ -36,37 +37,56 @@ class GoogleChart
     protected $chart_settings;
     protected $features;
     protected $annotated_dates;
+    protected $characteristics;
 
 
     # I wrote this constructor when I was much less experienced...
     # TODO
     #
     # refactor this into better code. 
-    protected function __construct()
+    protected function __construct($data, $config)
     {
         $this->features = $this->config['default_features'];
-        $this->chart_settings = $this->config['default_chart_settings'];
-        $this->annotated_dates = $this->config['annotated_dates'];
-        $this->construct_codename();
-        $this->objectify_data();
-        $this->refresh_data_headers();
-        // $this->build_js_data_table(); 
+        $this->data = $data;
+        $this->config = $config;
+        // clean up this config madness
+        $this->initialize_default_settings();
+        $this->do_prework();
     }
     
     // I've decided factory() > constructor for this class.
     public function factory($data, $kind)
     {
-        $config = include('config/config.php');
+        //$config = include('config/config.php');
 
-        if (!array_key_exists($kind, $config['class_name_map']))
-        {
-            throw new Exception("'$kind' is not a supported chart type.");
-        }
-        
+        //if (!array_key_exists($kind, $config['class_name_map']))
+        //{
+        //    throw new Exception("'$kind' is not a supported chart type.");
+        //}
+        //
+        //$class_name = $config['class_name_map'][$kind];
+        //require_once("charts/$class_name.php");
+        $config = include('config/config.php');
         $class_name = $config['class_name_map'][$kind];
         require_once("charts/$class_name.php");
         $chart = new $class_name($data, $config);
         return $chart;
+    }
+
+
+    protected function initialize_default_settings()
+    {
+        $this->chart_settings = $this->config['default_chart_settings'];
+        $this->characteristics = $this->config['default_characteristics'];
+        $this->annotated_dates = $this->config['annotated_dates'];
+        $this->construct_codename();
+    }
+
+
+    protected function do_prework()
+    {
+        $this->objectify_data();
+        $this->refresh_data_headers();
     }
 
 
@@ -593,7 +613,7 @@ class GoogleChart
 
     public function display()
     {
-        if ($this->has_results === False) 
+        if (!$this->characteristics['has_results']) 
         {
             echo "No data found to plot with for $this->title.";
             return Null;

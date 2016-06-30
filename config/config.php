@@ -45,6 +45,11 @@ return
     'stacking' => false,
 
 
+    'default_characteristics' => [
+        'has_results' => true,
+        ],
+
+
     'default_features' => [],
 ];
 

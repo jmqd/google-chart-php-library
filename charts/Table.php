@@ -11,6 +11,9 @@ class Table extends GoogleChart
     {
         $this->package = 'table';
         $this->chart_class = 'Table';
+        $this->data = $data;
+        $this->config = $config;
+        parent::__construct();
     }
 
 
