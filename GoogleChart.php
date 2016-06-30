@@ -29,7 +29,7 @@ abstract class GoogleChart
     protected $title;
     protected $independent_type;
     protected $data_headers;
-    protected $chart_settings;
+    protected $settings;
     protected $features;
     protected $characteristics;
 
@@ -55,10 +55,9 @@ abstract class GoogleChart
 
     protected function initialize_default_settings()
     {
-        $this->chart_settings = $this->config['default_chart_settings'];
+        $this->settings = $this->config['default_settings'];
         $this->characteristics = $this->config['default_characteristics'];
-        $this->chart_settings['annotated_dates'] = $this
-            ->config['annotated_dates'];
+        $this->settings['annotated_dates'] = $this->config['annotated_dates'];
         $this->features = $this->config['default_features'];
         $this->construct_codename();
     }
@@ -78,7 +77,7 @@ abstract class GoogleChart
             throw new Exception("set_annotated_dates() only takes an array.");
         }
 
-        $this->chart_settings['annotated_dates'] = $dates;
+        $this->settings['annotated_dates'] = $dates;
         return $this;
     }
 
@@ -404,11 +403,11 @@ abstract class GoogleChart
         {
             if ($this->get_independent_type() == 'date' && 
                 array_key_exists($row->{$this->get_independent()}, 
-                                 $this->chart_settings['annotated_dates'])) 
+                                 $this->settings['annotated_dates'])) 
             {
                 $annotation = "'R'";
                 $annotation_text = "'{$this
-                    ->chart_settings['annotated_dates'][$row->{$this->independent}]}'";
+                  ->settings['annotated_dates'][$row->{$this->independent}]}'";
             } else 
             {
                 $annotation = 'null';
@@ -448,7 +447,7 @@ abstract class GoogleChart
                 $special_options .= $this->$func_name('special_options');
             }
         }
-        $special_options .= "pointSize: {$this->chart_settings['point_size']}";
+        $special_options .= "pointSize: {$this->settings['point_size']}";
         $special_options .= "\n";
         return $special_options;
     }
@@ -504,7 +503,7 @@ abstract class GoogleChart
     {
         $axes = "vAxes: {\n";
         $series = "\t\t\t\t" . "series: {" . "\n";
-        if ($this->chart_settings['is_sharing_axes'] === False) 
+        if ($this->settings['is_sharing_axes'] === False) 
         {
             foreach ($this->dependents as $index => $y)
             {
@@ -512,7 +511,7 @@ abstract class GoogleChart
                 $series .= "\t\t\t\t\t" . "$index:{ targetAxisIndex: $index},"
                     . "\n";
             }
-        } else if ($this->chart_settings['is_sharing_axes'] === True) 
+        } else if ($this->settings['is_sharing_axes'] === True) 
         {
             $axes .= "\t\t\t\t\t" . "0: {title: ''}," . "\n";
             foreach ($this->dependents as $index => $y)
