@@ -28,7 +28,7 @@ class GoogleChart
     private $data_table;
     private $codename;
     private $title;
-    private $data;
+    protected $data;
     private $independent_type;
     private $data_headers;
     private $options;
@@ -39,7 +39,7 @@ class GoogleChart
     # TODO
     #
     # refactor this into better code. 
-    protected function __construct($args)
+    protected function __construct()
     {
         $this->options = $this->config['default_options'];
         $this->annotated_dates = $this->config['annotated_dates'];
@@ -60,10 +60,8 @@ class GoogleChart
         }
         
         $class_name = $config['class_name_map'][$kind];
-        $chart = new $class_name();
-        $chart->set_kind($kind);
-        $chart->set_data($data);
-        $chart->set_config($config);
+        require_once("charts/$class_name.php");
+        $chart = new $class_name($data, $config);
         return $chart;
     }
 
