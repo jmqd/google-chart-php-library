@@ -23,6 +23,8 @@ abstract class GoogleChart
     protected $dependents;
     protected $independent;
     protected $data_table;
+    protected $package;
+    protected $chart_class;
     protected $codename;
     protected $title;
     protected $independent_type;

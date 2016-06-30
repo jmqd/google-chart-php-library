@@ -2,8 +2,6 @@
 
 class LineChart extends GoogleChart 
 {
-    protected $package;
-    protected $chart_class;
 
 
     public function __construct($data, $config) 

@@ -8,10 +8,11 @@ class AreaChart extends GoogleChart
     private $chart_class;
 
     
-    public function __construct(GoogleChart $chart) 
+    public function __construct($data, $config) 
     {
         $this->package = 'corechart';
         $this->chart_class = 'AreaChart';
+        parent::__construct($data, $config);
     }
 
 }
