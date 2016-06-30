@@ -31,7 +31,6 @@ abstract class GoogleChart
     protected $data_headers;
     protected $chart_settings;
     protected $features;
-    protected $annotated_dates;
     protected $characteristics;
 
 
@@ -58,7 +57,8 @@ abstract class GoogleChart
     {
         $this->chart_settings = $this->config['default_chart_settings'];
         $this->characteristics = $this->config['default_characteristics'];
-        $this->annotated_dates = $this->config['annotated_dates'];
+        $this->chart_settings['annotated_dates'] = $this
+            ->config['annotated_dates'];
         $this->features = $this->config['default_features'];
         $this->construct_codename();
     }
@@ -78,7 +78,7 @@ abstract class GoogleChart
             throw new Exception("set_annotated_dates() only takes an array.");
         }
 
-        $this->annotated_dates = $dates;
+        $this->chart_settings['annotated_dates'] = $dates;
         return $this;
     }
 
@@ -404,11 +404,11 @@ abstract class GoogleChart
         {
             if ($this->get_independent_type() == 'date' && 
                 array_key_exists($row->{$this->get_independent()}, 
-                                 $this->annotated_dates)) 
+                                 $this->chart_settings['annotated_dates'])) 
             {
                 $annotation = "'R'";
                 $annotation_text = "'{$this
-                    ->annotated_dates[$row->{$this->independent}]}'";
+                    ->chart_settings['annotated_dates'][$row->{$this->independent}]}'";
             } else 
             {
                 $annotation = 'null';
