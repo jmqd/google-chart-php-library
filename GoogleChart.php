@@ -13,18 +13,15 @@
 abstract class GoogleChart
 {
 
-    public $class_name;
     public $chart_javascript;
+    public $chart_class;
 
     protected $data;
-
-    protected $kind;
     protected $config;
     protected $dependents;
     protected $independent;
     protected $data_table;
     protected $package;
-    protected $chart_class;
     protected $codename;
     protected $title;
     protected $independent_type;
@@ -37,15 +34,18 @@ abstract class GoogleChart
     protected function __construct($data, $config)
     {
         $this->data = $data;
-        $this->config = $config;
-        $this->initialize_default_settings();
+        $this->initialize_default_settings($config);
         $this->do_prework();
     }
     
 
-    public static function factory($data, $kind)
+    public static function factory($data, $kind = null)
     {
         $config = include('config/config.php');
+        if ($kind === null)
+        {
+            $kind = $config['default_settings']['kind']; 
+        }
         $class_name = $config['class_name_map'][$kind];
         require_once("charts/$class_name.php");
         $chart = new $class_name($data, $config);
@@ -53,18 +53,19 @@ abstract class GoogleChart
     }
 
 
-    protected function initialize_default_settings()
+    protected function initialize_default_settings($config)
     {
-        $this->settings = $this->config['default_settings'];
-        $this->characteristics = $this->config['default_characteristics'];
-        $this->settings['annotated_dates'] = $this->config['annotated_dates'];
-        $this->features = $this->config['default_features'];
-        $this->construct_codename();
+        $this->settings = $config['default_settings'];
+        $this->characteristics = $config['default_characteristics'];
+        $this->settings['annotated_dates'] = $config['annotated_dates'];
+        $this->features = $config['default_features'];
+        $this->config['supported_features'] = $config['supported_features'];
     }
 
 
     protected function do_prework()
     {
+        $this->construct_codename();
         $this->objectify_data();
         $this->refresh_data_headers();
     }
@@ -227,13 +228,6 @@ abstract class GoogleChart
     }
 
 
-    public function set_kind($kind)
-    {
-        $this->kind = strtolower($kind);
-        return $this;
-    }
-
-
     public function set_is_sharing_axes($boolean)
     {
         if (!is_bool($boolean)) 
@@ -245,12 +239,6 @@ abstract class GoogleChart
 
         $this->is_sharing_axes = $boolean;
         return $this;
-    }
-
-
-    public function get_kind()
-    {   
-        return $this->kind;
     }
 
 
@@ -465,20 +453,6 @@ abstract class GoogleChart
     }
     
 
-    protected function lookup_package()
-    {
-        switch ($this->kind)
-        {
-            case 'table':
-                return 'table';
-                break;
-            default:
-                return 'corechart';
-                break;
-        }
-    }
-
-
     protected function build_columns()
     {
         $columns = "";
@@ -535,7 +509,7 @@ abstract class GoogleChart
     protected function build_chart_javascript()
     {
         $this->chart_javascript = "
-        <div id='$this->codename' {$this->config['default_div_style']}'></div>
+        <div id='$this->codename' {$this->settings['div_style']}'></div>
         <script type='text/javascript'>
         google.charts.load('current', {packages:['{$this->package}']});
         google.charts.setOnLoadCallback($this->codename);

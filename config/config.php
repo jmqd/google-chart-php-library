@@ -8,23 +8,16 @@ return
         '2016-06-23' => 'The day I wrote this config file',
         ],
 
-
-    'default_chart_settings' => [
+    'default_settings' => [
         'is_sharing_axes' => true,
         'is_stacked' => false,
         'point_size' => 0,
+        'div_style' => "style='border: 0px solid; width:1400px",
+        'kind' => 'line',
         ],
     
-
     'supported_features' => ['png'],
-
-
-    'default_kind' => 'line',
-
     
-    'default_div_style' => "style='border: 0px solid; width:1400px",
-
-
     'class_name_map' => [
  		'line' => 'LineChart',
          'bar' => 'BarChart',
@@ -36,22 +29,13 @@ return
          'scatter' => 'ScatterChart',
     	],
 	
-
-    'is_including_png' => false,
-
-
-    'is_sharing_axes' => true,
-
-
-    'stacking' => false,
-
-
     'default_characteristics' => [
         'has_results' => true,
         ],
 
-
-    'default_features' => [],
+    'default_features' => [
+        
+        ],
 ];
 
 ?>
