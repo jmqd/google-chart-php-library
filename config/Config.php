@@ -1,5 +1,7 @@
 <?php
 
+require('charts/LineChart.php');
+
 class Config 
 {
 
@@ -23,9 +25,31 @@ class Config
 
         $this->default_chart = 'line';
         $this->default_style = "style='border: 0px solid; width:1400px;";
-
     }
+    
 
+    public static function get_class_name($kind)
+    {
+        $class_map = [
+            'line' => 'LineChart',
+            'bar' => 'BarChart',
+            'area' => 'AreaChart',
+            'pie' => 'PieChart',
+            'column' => 'ColumnChart',
+            'table' => 'Table',
+            'timeseries' => 'TimeseriesChart',
+            'scatter' => 'ScatterChart',
+        ];
+        if (array_key_exists($kind, $class_map))
+        {
+            return $class_map[$kind]; 
+        }
+
+        if (!array_key_exists($kind, $class_map))
+        {
+            throw new Exception("'$kind' kind of chart is not supported.");
+        }
+    }
 }
 
 ?>

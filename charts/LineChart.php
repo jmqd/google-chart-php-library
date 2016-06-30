@@ -1,18 +1,16 @@
 <?php
 
-require_once('../GoogleChart.php');
-
 class LineChart extends GoogleChart 
 {
-    private $package;
-    private $chart_class;
+    protected $package;
+    protected $chart_class;
 
 
-    public function __construct(GoogleChart $chart) 
+    public function __construct($data) 
     {
         $this->package = 'corechart';
         $this->chart_class = 'LineChart';
-
+        parent::__construct($this);
     }
 }
 

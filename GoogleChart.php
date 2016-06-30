@@ -21,6 +21,8 @@ require('config/Config.php');
 class GoogleChart
 {
 
+    public $class_name;
+
     private $kind;
     private $dependents;
     private $independent;
@@ -39,55 +41,41 @@ class GoogleChart
     # TODO
     #
     # refactor this into better code. 
-    public function __construct($args)
+    protected function __construct($args)
     {
         $this->config = new Config();
-        $this->title = $args['title'];
-        $this->has_results = array_key_exists('has_results', $args)
-            ? $args['has_results']
-            : true;
-
-        if ($this->has_results === false)
-        {   
-            return "Nothing data to plot for $this->title";
-        }
-
-        $this->codename = $this->construct_codename();
-        $this->data = $args['data'];
+        $this->construct_codename();
         $this->objectify_data();
         $this->refresh_data_headers();
-        $args['independent'] = array_key_exists('independent', $args)
-            ? $args['independent']
-            : '';
-        $this->set_independent($args['independent']);
-        $this->is_including_png = array_key_exists('is_including_png', $args)
-            ? $args['is_including_png']
-            : false;
-        $this->dependents = array_key_exists('dependents', $args)
-            ? $args['dependents']
-            : $this->build_dependents_guess();
-        $this->is_sharing_axes = array_key_exists('is_sharing_axes', $args)
-            ? $args['is_sharing_axes']
-            : True;
-        $this->make_js_data_table(); 
+        // $this->make_js_data_table(); 
     }
     
     // I've decided factory() > constructor for this class.
     public function factory($data, $kind)
     {
-        $this->config = new Config();
+        $class_name = Config::get_class_name($kind);
+        $chart = new $class_name();
+        $chart->set_kind($kind);
+        $chart->set_data($data);
+        return $chart;
+    }
+
+
+    protected function set_data($data)
+    {
         $this->data = $data;
-        $this->objectify_data();
-        $this->refresh_data_headers();
+    }
+
+    private function get_class_name()
+    {
+        return $this->config->class_map[$kind];
     }
 
     private function construct_codename()
     {
         // generate a 'unique' codename to avoid naming collisions
-        $codename = preg_replace('/[^a-zA-Z]/', '', $this->title); 
-        $codename .= substr(md5(rand()), 0, 7);
-
-        return $codename;
+        $this->codename = $this->kind; 
+        $this->codename .= substr(md5(rand()), 0, 7);
     }
 
 
