@@ -4,15 +4,16 @@ require_once('../GoogleChart.php');
 
 class ScatterChart extends GoogleChart 
 {
-    private $package;
-    private $chart_class;
+    protected $package;
+    protected $chart_class;
 
 
-    public function __construct(GoogleChart $chart) 
+    protected function __construct($data, $config) 
     {
+        parent::__construct($data, $config);
         $this->package = 'corechart';
         $this->chart_class = 'ScatterChart';
-
+        $this->chart_settings['point_size'] = 1;
     }
 
 }

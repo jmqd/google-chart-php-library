@@ -12,10 +12,11 @@ return
     'default_chart_settings' => [
         'is_sharing_axes' => true,
         'is_stacked' => false,
+        'point_size' => 0,
         ],
     
 
-    'supported_features' => [],
+    'supported_features' => ['png'],
 
 
     'default_kind' => 'line',

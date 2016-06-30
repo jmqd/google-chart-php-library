@@ -3,21 +3,12 @@
 
 // TODO:
 // 
-//      - finish building out charts classes for transition to library-style
-//
-//         - constructor will do something along these lines, akin to a driver:
-//           - construct things common to ALL types of chart (data, title, etc)
-//           - $this->class_instance = $this->kind . "Chart"
-//           - return new {$this->class_instance}($this);
-//      - adhere to 80 width lines
-//      - build out $config options
-//
 //      Currently, the $data property can really only accept Mysql_Result
 //          - work to make the data input stronger, and tranform all inputted
 //          data into a common format.
 
 
-class GoogleChart
+abstract class GoogleChart
 {
 
     public $class_name;
@@ -40,32 +31,17 @@ class GoogleChart
     protected $characteristics;
 
 
-    # I wrote this constructor when I was much less experienced...
-    # TODO
-    #
-    # refactor this into better code. 
     protected function __construct($data, $config)
     {
-        $this->features = $this->config['default_features'];
         $this->data = $data;
         $this->config = $config;
-        // clean up this config madness
         $this->initialize_default_settings();
         $this->do_prework();
     }
     
-    // I've decided factory() > constructor for this class.
-    public function factory($data, $kind)
-    {
-        //$config = include('config/config.php');
 
-        //if (!array_key_exists($kind, $config['class_name_map']))
-        //{
-        //    throw new Exception("'$kind' is not a supported chart type.");
-        //}
-        //
-        //$class_name = $config['class_name_map'][$kind];
-        //require_once("charts/$class_name.php");
+    public static function factory($data, $kind)
+    {
         $config = include('config/config.php');
         $class_name = $config['class_name_map'][$kind];
         require_once("charts/$class_name.php");
@@ -79,6 +55,7 @@ class GoogleChart
         $this->chart_settings = $this->config['default_chart_settings'];
         $this->characteristics = $this->config['default_characteristics'];
         $this->annotated_dates = $this->config['annotated_dates'];
+        $this->features = $this->config['default_features'];
         $this->construct_codename();
     }
 
@@ -102,9 +79,11 @@ class GoogleChart
     }
 
     // do I want this to be protected?...
-    protected function set_data($data)
+    public function set_data($data)
     {
         $this->data = $data;
+        $this->do_prework();
+        return $this;
     }
 
 
@@ -174,11 +153,22 @@ class GoogleChart
         return true;
     }
 
-    // factor this into with() strategy function if possible?
-    public function with_png()
+
+    // this is broken.
+    public function with_png($mode)
     {
-        $this->is_including_png = True;
-        return $this;
+        switch ($mode)
+        {
+            case 'extras':
+                return "google.visualization.events.addListener(chart, 'ready', "
+                . "function () {
+                {$this->codename}.innerHTML = '<img src=\"' + "
+                . "chart.getImageURI() + '\">';
+             });";
+
+            break;
+
+        }
     }
 
     public function set_independent($independent)
@@ -281,7 +271,7 @@ class GoogleChart
             return $this;
         }
 
-        $this->options[] = $feature;
+        $this->features[] = $feature;
         return $this;
     }
 
@@ -446,7 +436,7 @@ class GoogleChart
     protected function get_special_options() 
     {
         $special_options = "";
-        if (!empty($this->options))
+        if (!empty($this->features))
         {
             foreach ($this->features as $feature) 
             {
@@ -454,39 +444,9 @@ class GoogleChart
                 $special_options .= $this->$func_name('special_options');
             }
         }
-        $special_options .= "pointSize: {$this->get_point_size()}\n";
+        $special_options .= "pointSize: {$this->chart_settings['point_size']}";
+        $special_options .= "\n";
         return $special_options;
-    }
-
-
-    public function set_point_size_options($size=Null)
-    {
-        if ($size != Null) 
-        {
-            $this->point_size = $size;
-            return $this;
-        }
-
-        switch ($this->kind)
-        {
-            case 'scatter':
-                $this->point_size = 1;
-                break;
-            default:
-                $this->point_size = 0;
-                break;
-        }
-        return $this;
-    }
-
-
-    public function get_point_size()
-    {
-        if (isset($this->point_size) === False) 
-        {
-            $this->set_point_size_options();
-        }
-        return $this->point_size;
     }
 
 
@@ -560,18 +520,6 @@ class GoogleChart
         $axes .= "\t\t\t\t" . "}," . "\n";
         $series .= "\t\t\t\t" . "}";
         return $axes . $series;
-    }
-
-
-    protected function buildJsExtras()
-    {
-        if ($this->is_including_png === True) 
-        {
-            return "google.visualization.events.addListener(chart, 'ready', "
-                . "function () {
-                 png = chart.getImageURI();
-             });";
-        }
     }
 
 
