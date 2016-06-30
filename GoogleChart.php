@@ -6,6 +6,8 @@
 //      Currently, the $data property can really only accept Mysql_Result
 //          - work to make the data input stronger, and tranform all inputted
 //          data into a common format.
+//
+//      Work out how to make Dashboard object work.
 
 
 abstract class GoogleChart
@@ -552,11 +554,6 @@ abstract class GoogleChart
         }
         </script>";
     }
-
-    // TODO
-    // build out method to create a google.visualization.Dashboard object
-    //
-    // public function buildJsForDashboard()
 
 
     public function display()
