@@ -9,11 +9,14 @@ return
         ],
 
 
-    'supported_options' => [
-        'stacked',
-        'separate_axes',
+    'default_chart_settings' => [
+        'is_sharing_axes' => true,
+        'is_stacked' => false,
         ],
     
+
+    'supported_features' => [],
+
 
     'default_kind' => 'line',
 
@@ -33,11 +36,16 @@ return
     	],
 	
 
-	'default_options' => [
-        'is_including_png' => false,
-        'is_sharing_axes' => true,
-        'stacking' => false,
-		],
+    'is_including_png' => false,
+
+
+    'is_sharing_axes' => true,
+
+
+    'stacking' => false,
+
+
+    'default_features' => [],
 ];
 
 ?>

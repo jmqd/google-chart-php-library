@@ -25,16 +25,17 @@ class GoogleChart
 
     protected $data;
 
-    private $kind;
-    private $dependents;
-    private $independent;
-    private $data_table;
-    private $codename;
-    private $title;
-    private $independent_type;
-    private $data_headers;
-    private $options;
-    private $annotated_dates;
+    protected $kind;
+    protected $dependents;
+    protected $independent;
+    protected $data_table;
+    protected $codename;
+    protected $title;
+    protected $independent_type;
+    protected $data_headers;
+    protected $chart_settings;
+    protected $features;
+    protected $annotated_dates;
 
 
     # I wrote this constructor when I was much less experienced...
@@ -43,7 +44,8 @@ class GoogleChart
     # refactor this into better code. 
     protected function __construct()
     {
-        $this->options = $this->config['default_options'];
+        $this->features = $this->config['default_features'];
+        $this->chart_settings = $this->config['default_chart_settings'];
         $this->annotated_dates = $this->config['annotated_dates'];
         $this->construct_codename();
         $this->objectify_data();
@@ -86,15 +88,15 @@ class GoogleChart
     }
 
 
-    private function construct_codename()
+    protected function construct_codename()
     {
         // generate a 'unique' codename to avoid naming collisions
-        $this->codename = $this->kind; 
+        $this->codename = $this->chart_class; 
         $this->codename .= substr(md5(rand()), 0, 7);
     }
 
 
-    private function objectify_data()
+    protected function objectify_data()
     {
         // presently, data is assumed to be objects in all operations
     	if (!is_object($this->data))
@@ -111,7 +113,7 @@ class GoogleChart
     } 
    
  
-    private function refresh_data_headers()
+    protected function refresh_data_headers()
     {
         $this->data_headers = [];
 
@@ -135,7 +137,7 @@ class GoogleChart
     }
 
 
-    private function build_dependents_guess()
+    protected function build_dependents_guess()
     {   
         if (!empty($this->dependents))
         {
@@ -204,7 +206,7 @@ class GoogleChart
 
         if (in_array('date', $this->data_headers))
         {
-            $this->independent = 'date';
+            $this->set_independent(['name' => 'date', 'type' => 'date']);
             return true;
         }
         
@@ -245,21 +247,21 @@ class GoogleChart
     }
 
 
-    public function with($option) 
+    public function with($feature) 
     {
-        $option = strtolower($option);
+        $feature = strtolower($feature);
 
-        if (!in_array($option, $this->config['supported_options'])) 
+        if (!in_array($feature, $this->config['supported_features'])) 
         {
-            throw new Exception("'$option' is not a supported with() option.");
+            throw new Exception("'$feature' is not a supported with() feature.");
         }
         
-        if (in_array($option, $this->options)) 
+        if (in_array($feature, $this->options)) 
         {
             return $this;
         }
 
-        $this->options[] = $option;
+        $this->options[] = $feature;
         return $this;
     }
 
@@ -267,7 +269,7 @@ class GoogleChart
     # TODO:
     # Build out the various with_() functions.
 
-    private function with_separate_axes($mode) 
+    protected function with_separate_axes($mode) 
     { 
         // there will be more cases here eventually
         switch ($mode) 
@@ -277,7 +279,7 @@ class GoogleChart
     } 
 
 
-    private function with_stacked($mode) 
+    protected function with_stacked($mode) 
     {
         switch ($mode) 
         {
@@ -325,7 +327,7 @@ class GoogleChart
     }
 
 
-    private function prepare_independent($value)
+    protected function prepare_independent($value)
     {
         switch ($this->get_independent_type())
         {
@@ -372,7 +374,7 @@ class GoogleChart
     }
 
 
-    private function get_data_table()
+    protected function get_data_table()
     {
         return $this->data_table;
     }
@@ -381,7 +383,7 @@ class GoogleChart
     #TODO:
     #
     #clean this up.
-    private function build_js_data_table()
+    protected function build_js_data_table()
     {
         $data_body = "";
         foreach ($this->data as $row)
@@ -421,14 +423,14 @@ class GoogleChart
     }    
 
 
-    private function get_special_options() 
+    protected function get_special_options() 
     {
         $special_options = "";
         if (!empty($this->options))
         {
-            foreach ($this->options as $option) 
+            foreach ($this->features as $feature) 
             {
-                $func_name = "with_$option";
+                $func_name = "with_$feature";
                 $special_options .= $this->$func_name('special_options');
             }
         }
@@ -468,7 +470,7 @@ class GoogleChart
     }
 
 
-    private function get_options()
+    protected function get_options()
     {
         $options = "var options = {
                 title: '$this->title',
@@ -480,7 +482,7 @@ class GoogleChart
     }
     
 
-    private function lookup_package()
+    protected function lookup_package()
     {
         switch ($this->kind)
         {
@@ -494,7 +496,7 @@ class GoogleChart
     }
 
 
-    private function build_columns()
+    protected function build_columns()
     {
         $columns = "";
         $columns .= "data.addColumn('{$this->get_independent_type()}', ";
@@ -514,11 +516,11 @@ class GoogleChart
     }
 
 
-    private function get_axes_options()
+    protected function get_axes_options()
     {
         $axes = "vAxes: {\n";
         $series = "\t\t\t\t" . "series: {" . "\n";
-        if ($this->is_sharing_axes === False) 
+        if ($this->chart_settings['is_sharing_axes'] === False) 
         {
             foreach ($this->dependents as $index => $y)
             {
@@ -526,7 +528,7 @@ class GoogleChart
                 $series .= "\t\t\t\t\t" . "$index:{ targetAxisIndex: $index},"
                     . "\n";
             }
-        } else if ($this->is_sharing_axes === True) 
+        } else if ($this->chart_settings['is_sharing_axes'] === True) 
         {
             $axes .= "\t\t\t\t\t" . "0: {title: ''}," . "\n";
             foreach ($this->dependents as $index => $y)
@@ -541,7 +543,7 @@ class GoogleChart
     }
 
 
-    private function buildJsExtras()
+    protected function buildJsExtras()
     {
         if ($this->is_including_png === True) 
         {
@@ -559,7 +561,7 @@ class GoogleChart
     }
 
 
-    private function build_chart_javascript()
+    protected function build_chart_javascript()
     {
         $this->chart_javascript = "
         <div id='$this->codename' {$this->config['default_div_style']}'></div>
