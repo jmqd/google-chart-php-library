@@ -16,7 +16,7 @@
 //          - work to make the data input stronger, and tranform all inputted
 //          data into a common format.
 
-require($_SERVER['DOCUMENT_ROOT'] . '/config/Config.php');	
+require('config/Config.php');	
 
 class GoogleChart
 {
