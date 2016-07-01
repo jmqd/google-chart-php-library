@@ -10,6 +10,17 @@ class PieChart extends GoogleChart
         parent::__construct($data, $config);
     }
 
+    protected function build_independent_guess()
+    {
+        if (!empty($this->independent))
+        {
+            return true;
+        }
+
+        throw new Exception('PieCharts need an explicit independent variable');
+    }
+
+
 }
 
 ?>
