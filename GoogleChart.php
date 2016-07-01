@@ -90,7 +90,12 @@ abstract class GoogleChart
         $this->config['supported_features'] = $config['supported_features'];
     }
 
-
+    /**
+     * Does three things:
+     *  - creates codename
+     *  - turns data rows into objects if they aren't
+     *  - constructs/refreshes the data_headers
+     */
     protected function do_prework()
     {
         $this->construct_codename();
