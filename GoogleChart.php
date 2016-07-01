@@ -182,7 +182,7 @@ abstract class GoogleChart
     }
 
     /**
-     * Getter
+     * Getter. Also refreshes the data_headers, in case the data has changed.
      * @return array $this->data_headers
      */
     public function get_data_headers()
@@ -241,7 +241,6 @@ abstract class GoogleChart
              });";
 
             break;
-
         }
     }
 
@@ -288,6 +287,7 @@ abstract class GoogleChart
         return $this;
     } 
 
+
     /**
      * If the independent var hasn't been explicitly given via
      * $chart->set_independent(string), this will use sensible
@@ -310,6 +310,7 @@ abstract class GoogleChart
         
         return false;
     }
+
 
     /**
      * Setter for boolean value. True causes this chart to be plotted
@@ -337,6 +338,7 @@ abstract class GoogleChart
     {
         return $this->data;
     }
+
 
     /**
      * Adds one of a finite number of supported 'features', as elucidated
@@ -541,7 +543,14 @@ abstract class GoogleChart
         $this->data_table = $data_body;
     }    
 
-
+    /**
+     * Builds the special options portion of the javascript code.
+     *
+     * TODO
+     *  - this isn't a getter, it's a builder.
+     *
+     * @return string javascript code $special_options
+     */
     protected function get_special_options() 
     {
         $special_options = "";
