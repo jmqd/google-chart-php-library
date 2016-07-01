@@ -396,7 +396,8 @@ abstract class GoogleChart
                 $annotation = "'R'";
                 $annotation_text = "'{$this
                   ->settings['annotated_dates'][$row->{$this->independent}]}'";
-            } else 
+            } 
+            else 
             {
                 $annotation = 'null';
                 $annotation_text = "null";
@@ -485,7 +486,8 @@ abstract class GoogleChart
                 $series .= "\t\t\t\t\t" . "$index:{ targetAxisIndex: $index},"
                     . "\n";
             }
-        } else if ($this->settings['is_sharing_axes'] === True) 
+        } 
+        else if ($this->settings['is_sharing_axes'] === True) 
         {
             $axes .= "\t\t\t\t\t" . "0: {title: ''}," . "\n";
             foreach ($this->dependents as $index => $y)
