@@ -9,9 +9,11 @@
  *
  * TODO
  *
- *      - Currently, the $data property can really only accept Mysql_Result
- *          - work to make the data input stronger, and tranform all inputted
- *          data into a common format.
+ *      - Make the data input FAR more flexible.
+ *          I want to be able to input all sorts of different disparate
+ *          datatable formats and achieve sensible results via transforming
+ *          many different types of data into one standard format for use in
+ *          this library.
  *
  *      - Work out how to make Dashboard object work.
  */
