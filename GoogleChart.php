@@ -1,15 +1,25 @@
 <?php
-// Jordan McQueen
 
-// TODO:
-// 
-//      Currently, the $data property can really only accept Mysql_Result
-//          - work to make the data input stronger, and tranform all inputted
-//          data into a common format.
-//
-//      Work out how to make Dashboard object work.
+/**
+ * Google Chart PHP Library
+ * 
+ * @package GoogleChart
+ * @author Jordan McQueen
+ *
+ *
+ * TODO
+ *
+ *      - Currently, the $data property can really only accept Mysql_Result
+ *          - work to make the data input stronger, and tranform all inputted
+ *          data into a common format.
+ *
+ *      - Work out how to make Dashboard object work.
+ */
+ 
 
-
+/**
+ * The abstraction of a chart. Client interacts via factory method.
+ */
 abstract class GoogleChart
 {
 
@@ -30,7 +40,13 @@ abstract class GoogleChart
     protected $features;
     protected $characteristics;
 
-
+    /**
+     * Used by subclasses via parent::__construct() to perform
+     * construction routines common to all chart subclasses.
+     *
+     * @param mixed $data
+     * @param array $config
+     */ 
     protected function __construct($data, $config)
     {
         $this->data = $data;
@@ -38,7 +54,15 @@ abstract class GoogleChart
         $this->do_prework();
     }
     
-
+    /**
+     * Client interaction with this library starts here.
+     * This is the first step of creating a Google Chart.
+     *
+     * @param mixed $data
+     * @param string $kind optional; has default in config
+     *
+     * @return GoogleChart $chart
+     */
     public static function factory($data, $kind = null)
     {
         $config = include('config/config.php');
@@ -52,7 +76,11 @@ abstract class GoogleChart
         return $chart;
     }
 
-
+    /**
+     * Initializes setting values for chart.
+     *
+     * @param array $config
+     */
     protected function initialize_default_settings($config)
     {
         $this->settings = $config['default_settings'];
@@ -70,7 +98,12 @@ abstract class GoogleChart
         $this->refresh_data_headers();
     }
 
-
+    /**
+     * For setting an associative array of dates that are annotated
+     * on this chart. e.g. ['2016-01-01' => 'New Years Day', ...]
+     *
+     * @param array[string]string $dates
+     */
     public function set_annotated_dates($dates)
     {
         if (!is_array($dates))
@@ -82,7 +115,7 @@ abstract class GoogleChart
         return $this;
     }
 
-    // do I want this to be protected?...
+
     public function set_data($data)
     {
         $this->data = $data;
@@ -90,10 +123,12 @@ abstract class GoogleChart
         return $this;
     }
 
-
+    /**
+     * Generates quasi-'unique' name by which the
+     * code identifies this chart. e.g. <div id='{{ $this->codename }}'>
+     */
     protected function construct_codename()
     {
-        // generate a 'unique' codename to avoid naming collisions
         $this->codename = $this->chart_class; 
         $this->codename .= substr(md5(rand()), 0, 7);
     }
@@ -175,6 +210,14 @@ abstract class GoogleChart
         }
     }
 
+
+    /**
+     * If setting independent to 'date', type is automatically taken care of.
+     * In other cases, give it assoc. array of name => column, type => type.
+     *
+     * @param mixed $independent
+     * @return GoogleChart $this
+     */
     public function set_independent($independent)
     {
         switch (True)
@@ -227,7 +270,14 @@ abstract class GoogleChart
         return false;
     }
 
-
+    /**
+     * Setter for boolean value. True causes this chart to be plotted
+     * with y-axis shared among different columns of data. False creates
+     * a second axis (only currently useful in case of 2 dependents).
+     *
+     * @param bool $boolean
+     * @return GoogleChart $this
+     */
     public function set_is_sharing_axes($boolean)
     {
         if (!is_bool($boolean)) 
@@ -237,7 +287,7 @@ abstract class GoogleChart
                 . "requires type Boolean; $type was given.");
         }
 
-        $this->is_sharing_axes = $boolean;
+        $this->settings['is_sharing_axes'] = $boolean;
         return $this;
     }
 
@@ -247,7 +297,13 @@ abstract class GoogleChart
         return $this->data;
     }
 
-
+    /**
+     * Adds one of a finite number of supported 'features', as elucidated
+     * in config/config.php['supported_features'].
+     *
+     * @param string $feature
+     * @return GoogleChart $this
+     */
     public function with($feature) 
     {
         $feature = strtolower($feature);
