@@ -1,7 +1,5 @@
 <?php
 
-require_once('../GoogleChart.php');
-
 class GaugeChart extends GoogleChart 
 {
 

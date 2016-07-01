@@ -3,7 +3,6 @@
 class LineChart extends GoogleChart 
 {
 
-
     public function __construct($data, $config) 
     {
         $this->package = 'corechart';
