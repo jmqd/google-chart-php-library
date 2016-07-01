@@ -115,7 +115,12 @@ abstract class GoogleChart
         return $this;
     }
 
-
+    /**
+     * Gives the chart a new data set. Also runs do_prework().
+     *
+     * @param mixed $data
+     * @return GooglePlot $this
+     */
     public function set_data($data)
     {
         $this->data = $data;
@@ -133,7 +138,13 @@ abstract class GoogleChart
         $this->codename .= substr(md5(rand()), 0, 7);
     }
 
-
+    /**
+     * Turns the data rows into objects, if they aren't.
+     * This method is soon to be overhauled into a grand data transformation
+     * method, for a full polymorphic acceptance of datasets.
+     *
+     * implicit self $this
+     */
     protected function objectify_data()
     {
         // presently, data is assumed to be objects in all operations
@@ -150,7 +161,11 @@ abstract class GoogleChart
         }       
     } 
    
- 
+    /**
+     * Generates an array $this->data_headers that contains a list of
+     * the data fields that are within $this->data.
+     * e.g. ['date', 'sales', 'costs', 'customer_count']
+     */
     protected function refresh_data_headers()
     {
         $this->data_headers = [];
@@ -161,20 +176,35 @@ abstract class GoogleChart
         }
     }
 
-
+    /**
+     * Getter
+     * @return array $this->data_headers
+     */
     public function get_data_headers()
     {
         $this->refresh_data_headers();
         return $this->data_headers;
     }
 
-
+    /**
+     * Getter
+     * @return string $this->independent
+     */
     public function get_independent()
     {
         return $this->independent;
     }
 
-
+    /**
+     * If dependents aren't explicity given via $chart->set_dependents(array),
+     * this will use sensible defaults to construct a guess. Currently, those
+     * sensible defaults return the set-theoritc complement of the independent
+     * and all of the data fields in the dataset. This is a fancy way to say
+     * that it takes all of the data fields OTHER than the currently set
+     * independent var... sorry for being pretentious. ;)
+     *
+     * @return bool success
+     */
     protected function build_dependents_guess()
     {   
         if (!empty($this->dependents))
@@ -253,7 +283,13 @@ abstract class GoogleChart
         return $this;
     } 
 
-
+    /**
+     * If the independent var hasn't been explicitly given via
+     * $chart->set_independent(string), this will use sensible
+     * defaults to attempt to guess the independent.
+     *
+     * @return bool success
+     */
     protected function build_independent_guess()
     {
         if (!empty($this->independent))
@@ -335,7 +371,12 @@ abstract class GoogleChart
         }
     } 
 
-
+    /**
+     * Internal concern only; activates the ->with('stacked') feature.
+     *
+     * @param string $mode
+     * @return string $javascript
+     */
     protected function with_stacked($mode) 
     {
         switch ($mode) 
@@ -383,7 +424,16 @@ abstract class GoogleChart
         return $this;
     }
 
-
+    /**
+     * A function that is called iteratively during the construction of
+     * the javascript datatable. This formats database datetime values
+     * into a string that constructs a datetime object for javascript.
+     *
+     * Gives +1 day because javascript indexes date at 0.
+     *
+     * @param string datetime e.g. '2016-01-05'
+     * @return string javascript e.g. "new Date('2016-01-06')"
+     */
     protected function prepare_independent($value)
     {
         switch ($this->get_independent_type())
@@ -403,7 +453,10 @@ abstract class GoogleChart
         }
     }
 
-
+    /**
+     * The almighty build method. Collects all the building submethods into
+     * an orchestra.
+     */
     public function build()
     {
         if (empty($this->independent))
@@ -437,9 +490,12 @@ abstract class GoogleChart
     }
 
 
-    #TODO:
-    #
-    #clean this up.
+    /**
+     * Using various properties of the object, constructs the datatable
+     * representation of $this->data to be passed into the chart JS function.
+     *
+     * @return string javascript datatable code
+     */
     protected function build_js_data_table()
     {
         $data_body = "";
