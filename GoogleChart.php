@@ -307,6 +307,15 @@ abstract class GoogleChart
             $this->set_independent(['name' => 'date', 'type' => 'date']);
             return true;
         }
+
+        if (is_string($this->data_headers[0]) and
+		    DateTime::createFromFormat('Y-m-d',
+                $this->get_data()[0]->{$this->data_headers[0]}) === FALSE
+            )
+        {
+            $this->set_independent($this->data_headers[0]);
+            return true;
+        }
         
         return false;
     }
