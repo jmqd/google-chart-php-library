@@ -11,7 +11,7 @@ needed to manage its growing complexity, and it has since become an excellent pr
 
 Here's an example of what the PHP syntax looks like to create a simple line graph, using this library:
 
-(Note: you must load Google's javascript Google Charts API in the <head> of your HTML file.)
+(Note: you must load Google's javascript Google Charts API in the head of your HTML file.)
 ```php
 // first, create sample data to graph
 // the data input is polymorphic and flexible; an associative array is not required.
