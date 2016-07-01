@@ -659,12 +659,20 @@ abstract class GoogleChart
      */
     protected function build_chart_javascript()
     {
-        $this->chart_javascript = "
-        <div id='$this->codename' {$this->settings['div_style']}'></div>
-        <script type='text/javascript'>
+        $styles = "";
+
+        foreach ($this->settings['div_styles'] as $style_row)
+        {
+           $styles .= $style_row['style'] . ':' . $style_row['value'] . ';'; 
+        }
+        $div_tag = "<div id='$this->codename' style='$styles'></div>";
+
+        $chart_boilerplate = "<script type='text/javascript'>
         google.charts.load('current', {packages:['{$this->package}']});
-        google.charts.setOnLoadCallback($this->codename);
-        function $this->codename() {
+        google.charts.setOnLoadCallback($this->codename);";
+        
+
+        $chart_function = "function $this->codename() {
             var data = new google.visualization.DataTable()
             {$this->build_columns()}
             data.addRows(
@@ -679,6 +687,8 @@ abstract class GoogleChart
             chart.draw(data, options);
         }
         </script>";
+        
+        $this->chart_javascript = $div_tag . $chart_boilerplate . $chart_function;
     }
 
 
