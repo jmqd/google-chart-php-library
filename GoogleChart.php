@@ -553,7 +553,14 @@ abstract class GoogleChart
         return $special_options;
     }
 
-
+    /**
+     * Constructs the options to pass to the javascript code.
+     *
+     * TODO
+     *  - This shouldn't be a getter. It's a builder.
+     * 
+     * @return string javascript $options
+     */
     protected function get_options()
     {
         $options = "var options = {
@@ -565,7 +572,12 @@ abstract class GoogleChart
         return $options;
     }
     
-
+    /**
+     * Constructs the portion of the chart javascript that tells which columns
+     * exist in the dataset, what type they are, etc.
+     *
+     * @return string javascript code $columns
+     */
     protected function build_columns()
     {
         $columns = "";
@@ -585,7 +597,12 @@ abstract class GoogleChart
         return $columns;
     }
 
-
+    /**
+     * Returns the options portion of the javascript chart function specific
+     * to Axis options, e.g. axis mapping, etc.
+     *
+     * @return string javascript code $axes_options
+     */
     protected function get_axes_options()
     {
         $axes = "vAxes: {\n";
@@ -619,7 +636,13 @@ abstract class GoogleChart
         return $this->chart_javascript;
     }
 
-
+    /**
+     * Utilizing all of the modular javascript code builder methods,
+     * this provides a skeleton and slots the builders into the correct
+     * joints, bones, and muscles.
+     *
+     * @property string javascript code
+     */
     protected function build_chart_javascript()
     {
         $this->chart_javascript = "
