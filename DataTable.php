@@ -26,7 +26,7 @@ class DataTable
                 $this->array_validator($data);
                 break;
             case 'object':
-                $this->obj_construction_delegator($data);
+                $this->object_to_array($data);
                 break;
             default:
                 throw new Exception("$data_format data format is not valid.");
@@ -86,6 +86,25 @@ class DataTable
 
         // valid array. from here, either pass $data to a building function
         // or simply say $this->data = $data. unsure of design yet.
+    }
+
+    /**
+     * Turns the data rows into arrays, if they are objects.
+     */
+    private function object_to_array($data)
+    {
+
+        if (is_object($data))
+        {
+            foreach ($data as $index => $row)
+            {
+                if (isset($row))
+                {
+                    $data[$index] = json_decode(json_encode($row), true);
+                }
+            }
+        }       
+        return $data;
     }
 }
 

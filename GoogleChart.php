@@ -264,7 +264,7 @@ abstract class GoogleChart
                 break;
 
             case (!empty($independent) && 
-                DateTime::createFromFormat
+                  DateTime::createFromFormat
                 (
                     'Y-m-d', 
                     $this->get_data()[0]->$independent
@@ -275,7 +275,7 @@ abstract class GoogleChart
                 break;
 
             case (in_array('date', $this->get_data_headers()) && 
-                empty($independent)):
+                  empty($independent)):
 
                 $this->independent = 'date';
                 $this->independent_type = 'date';
@@ -383,6 +383,7 @@ abstract class GoogleChart
     protected function with_separate_axes($mode) 
     { 
         // there will be more cases here eventually
+        // said the guy a month ago... ;)
         switch ($mode) 
         {
             case 'special_options':
