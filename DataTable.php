@@ -6,6 +6,11 @@
  *
  * This isn't a part of the package yet. Aiming to replace the
  * $data property of GoogleChart class with this object.
+ *
+ * TODO:
+ *      - Flow of validation needs revising. Some $data
+ *      will be an array with elements of objects. need
+ *      to address this case.
  */
 
 class DataTable
@@ -26,7 +31,7 @@ class DataTable
                 $this->array_validator($data);
                 break;
             case 'object':
-                $this->object_to_array($data);
+                $data = $this->object_to_array($data);
                 break;
             default:
                 throw new Exception("$data_format data format is not valid.");
