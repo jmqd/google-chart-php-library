@@ -10,9 +10,11 @@
 
 class DataTable
 {
-    protected $is_valid;
-    protected $data;
-    protected $columns;
+    private $is_valid;
+    private $data;
+    private $columns;
+    private $number_of_rows;
+    private $number_of_columns;
 
     public function __construct($data)
     {
@@ -32,7 +34,7 @@ class DataTable
         }
     }
 
-    protected function array_validator($data)
+    private function array_validator($data)
     {
         if (!array_key_exists(0, $data))
         {
