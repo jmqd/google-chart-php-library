@@ -512,6 +512,9 @@ abstract class GoogleChart
      * Using various properties of the object, constructs the datatable
      * representation of $this->data to be passed into the chart JS function.
      *
+     * TODO:
+     *      - I think it's about time the data_table became its own object...
+     *
      * @return string javascript datatable code
      */
     protected function build_js_data_table()
