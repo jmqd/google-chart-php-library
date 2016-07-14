@@ -9,17 +9,28 @@ return
         '2016-06-23' => 'The day I wrote this config file',
     ],
 
-    'default_settings' => 
-    [
-        'is_sharing_axes' => true,
-        'is_stacked' => false,
-        'point_size' => 0,
-        'div_styles' => 
+    'defaults' =>
+    [ 
+        'settings' => 
         [
-            ['style' => 'border', 'value' => '0px solid'], 
-            ['style' => 'width', 'value' => '1400px'], 
+            'is_sharing_axes' => true,
+            'is_stacked' => false,
+            'point_size' => 0,
+            'div_styles' => 
+            [
+                ['style' => 'border', 'value' => '0px solid'],
+                ['style' => 'width', 'value' => '1400px'],
+            ],
         ],
         'kind' => 'line',
+        'characteristics' =>
+        [
+            'has_results' => true,
+        ],
+        'features' =>
+        [
+        
+        ],
     ],
     
     'supported_features' => ['png'],
@@ -34,16 +45,6 @@ return
          'table' => 'Table',
          'timeseries' => 'TimeseriesChart',
          'scatter' => 'ScatterChart',
-    ],
-	
-    'default_characteristics' => 
-    [
-        'has_results' => true,
-    ],
-
-    'default_features' => 
-    [
-        
     ],
 ];
 

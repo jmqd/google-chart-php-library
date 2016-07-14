@@ -70,7 +70,7 @@ abstract class GoogleChart
         $config = include('config/config.php');
         if ($kind === null)
         {
-            $kind = $config['default_settings']['kind']; 
+            $kind = $config['defaults']['kind'];
         }
         $class_name = $config['class_name_map'][$kind];
         require_once("charts/$class_name.php");
@@ -85,10 +85,10 @@ abstract class GoogleChart
      */
     protected function initialize_default_settings($config)
     {
-        $this->settings = $config['default_settings'];
-        $this->characteristics = $config['default_characteristics'];
+        $this->settings = $config['defaults']['settings'];
+        $this->characteristics = $config['defaults']['characteristics'];
         $this->settings['annotated_dates'] = $config['annotated_dates'];
-        $this->features = $config['default_features'];
+        $this->features = $config['defaults']['features'];
         $this->config['supported_features'] = $config['supported_features'];
     }
 
