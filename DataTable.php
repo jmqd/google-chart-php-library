@@ -47,6 +47,13 @@ class DataTable
         $this->is_empty = false;
     }
 
+    /*
+     * Given an array, checks if it is a valid input to be processed by
+     * the DataTable class.
+     *
+     * @param array $data
+     * @return boolean $response
+     */
     private function array_validator(array $data)
     {
         if (!array_key_exists(0, $data))
