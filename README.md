@@ -14,7 +14,7 @@ Here's an example of what the PHP syntax looks like to create a simple line grap
 (Note: you must load Google's javascript Google Charts API in the head of your HTML file.)
 ```php
 // create example data with which to graph
-// the data input is polymorphic and flexible; an associative array is not required.
+// the data input is flexible; an associative array is not required.
 $data = [
   ['date' => '2016-05-01', 'sales' => 512350],
   ['date' => '2016-05-02', 'sales' => 479203],
