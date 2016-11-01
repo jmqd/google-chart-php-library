@@ -230,23 +230,6 @@ abstract class GoogleChart
     }
 
 
-    // this is broken.
-    public function with_png($mode)
-    {
-        switch ($mode)
-        {
-            case 'extras':
-                return "google.visualization.events.addListener(chart, 'ready', "
-                . "function () {
-                {$this->codename}.innerHTML = '<img src=\"' + "
-                . "chart.getImageURI() + '\">';
-             });";
-
-            break;
-        }
-    }
-
-
     /**
      * If setting independent to 'date', type is automatically taken care of.
      * In other cases, give it assoc. array of name => column, type => type.
