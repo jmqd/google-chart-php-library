@@ -122,6 +122,12 @@ abstract class GoogleChart
         return $this;
     }
 
+    public function modify_div_style($key, $value)
+    {
+        $this->settings['div_style'][$key] = $value;
+        return $this;
+    }
+
     /**
      * Gives the chart a new data set. Also runs do_prework().
      *
@@ -161,6 +167,7 @@ abstract class GoogleChart
             {
                 if (isset($row))
                 {
+                    // json encode/decode stuff deeply casts arrays to objects
                     $data[$index] = json_decode(json_encode($row));
                 }
             }
