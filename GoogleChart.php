@@ -122,6 +122,15 @@ abstract class GoogleChart
         return $this;
     }
 
+    /**
+     * For modifying the div style of the chart.
+     * e.g. modify_div_style('width', '400px');
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return GoogleChart $this
+     */
     public function modify_div_style($key, $value)
     {
         $this->settings['div_style'][$key] = $value;
