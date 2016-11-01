@@ -366,7 +366,8 @@ abstract class GoogleChart
     protected function with_separate_axes($mode) 
     { 
         // there will be more cases here eventually
-        // said the guy a month ago... ;)
+        // ... said the guy a month ago... ;)
+        // ... said the guy 5+ months ago
         switch ($mode) 
         {
             case 'special_options':
@@ -549,7 +550,7 @@ abstract class GoogleChart
      *
      * @return string javascript code $special_options
      */
-    protected function get_special_options() 
+    protected function build_options() 
     {
         $special_options = "";
         if (!empty($this->features))
@@ -579,7 +580,7 @@ abstract class GoogleChart
                 title: '$this->title',
                 height: 400,
                 {$this->get_axes_options()},
-                {$this->get_special_options()}
+                {$this->build_options()}
             };";
         return $options;
     }
@@ -612,6 +613,8 @@ abstract class GoogleChart
     /**
      * Returns the options portion of the javascript chart function specific
      * to Axis options, e.g. axis mapping, etc.
+     *
+     * This is ugly stuff guys. I was young, okay?
      *
      * @return string javascript code $axes_options
      */
