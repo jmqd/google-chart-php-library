@@ -3,7 +3,10 @@
 
 #### Author: Jordan McQueen
 
-Status: still in development. Used to be fully functional, but I began refactoring to adhere to better design priciples/patterns. May or may not be working at this given moment.
+_I wrote this library when I was far less experienced, so please forgive any
+abhorrences. ;)_
+
+Status: __incomplete and on pause__. Used to be fully functional, but I began refactoring to adhere to better design priciples/patterns. May or may not be working at this given moment.
 
 I began writing this library to create a simple, clean interface for PHP to generate the javascript code to create google 
 charts, without manually creating any javascript code. As the project grew in scope, it was clear that OO design patterns were
